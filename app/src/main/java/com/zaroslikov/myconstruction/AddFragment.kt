@@ -3,16 +3,18 @@ package com.zaroslikov.myconstruction
 import android.icu.util.Calendar
 import android.icu.util.TimeZone
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AutoCompleteTextView
+import android.widget.TextView
+import androidx.fragment.app.Fragment
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.DateValidatorPointBackward
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.textfield.TextInputLayout
+import com.zaroslikov.myconstruction.db.MyConstanta
 import com.zaroslikov.myconstruction.db.MyDatabaseHelper
 import java.text.SimpleDateFormat
 
@@ -34,6 +36,7 @@ class AddFragment : Fragment() {
     private lateinit var myDB: MyDatabaseHelper
     private var productNameList = mutableListOf<String>()
     private var productList = mutableListOf<Product>()
+    private lateinit var nowUnit: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,6 +66,7 @@ class AddFragment : Fragment() {
 
                     appBar.title = "Информация"
                 }
+
                 R.id.magazine -> {
 
                 }
@@ -77,15 +81,15 @@ class AddFragment : Fragment() {
 
         val productName = layout.findViewById<AutoCompleteTextView>(R.id.productName_editText)
         val add_edit = layout.findViewById<TextInputLayout>(R.id.add_edit)
-        val price_edit = layout.findViewById< TextInputLayout>(R.id.price_edit)
+        val price_edit = layout.findViewById<TextInputLayout>(R.id.price_edit)
         val suffixSpiner = layout.findViewById<AutoCompleteTextView>(R.id.suffixSpiner)
         val category = layout.findViewById<AutoCompleteTextView>(R.id.category_edit)
         val date = layout.findViewById<TextInputLayout>(R.id.date)
-        val nowUnit = layout.findViewById<>(R.id.now_warehouse)
+        nowUnit = layout.findViewById(R.id.now_warehouse)
 
-        val productNameMenu = layout.findViewById< TextInputLayout>(R.id.product_name_add_menu)
-        val suffixMenu = layout.findViewById< TextInputLayout>(R.id.suffixSpiner)
-        val categoryMenu = layout.findViewById< TextInputLayout>(R.id.category_add_menu)
+        val productNameMenu = layout.findViewById<TextInputLayout>(R.id.product_name_add_menu)
+        val suffixMenu = layout.findViewById<TextInputLayout>(R.id.suffixSpiner)
+        val categoryMenu = layout.findViewById<TextInputLayout>(R.id.category_add_menu)
 
         addProduct()
 
@@ -116,7 +120,7 @@ class AddFragment : Fragment() {
             val productClick = productList.get(i).name
             val suffixClick = productList.get(i).suffix
 
-            if (suffixSpiner.text.toString().equals("")){
+            if (suffixSpiner.text.toString().equals("")) {
 
             }
         }
@@ -146,8 +150,33 @@ class AddFragment : Fragment() {
 
     }
 
-    fun addDB(product:String, suffix:String){
-        val cursor = myDB.
+    fun addDB(product: String, suffix: String, idProject: Int) {
+        val cursor =
+            myDB.selectProductJoin(idProject, product, MyConstanta.Constanta.TABLE_NAME_ADD, suffix)
+        if (cursor.count != 0) {
+            cursor.moveToFirst()
+            var productName = cursor.getString(0)
+            var productUnitAdd = cursor.getDouble(1)
+            var suffixName = cursor.getString(2)
+            cursor.close()
+
+            val cursorWriteOff = myDB.selectProductJoin(
+                idProject,
+                product,
+                MyConstanta.Constanta.TABLE_NAME_WRITEOFF,
+                suffix
+            )
+
+            if (cursorWriteOff.count != 0) {
+                cursorWriteOff.moveToFirst()
+                val productUnitWriteOff = cursorWriteOff.getDouble(1)
+                productUnitAdd -= productUnitWriteOff
+            }
+            nowUnit.text = " На складе $productName $productUnitAdd  $suffixName"
+
+        } else {
+            nowUnit.text = " На складе  нет такого товара "
+        }
 
     }
 

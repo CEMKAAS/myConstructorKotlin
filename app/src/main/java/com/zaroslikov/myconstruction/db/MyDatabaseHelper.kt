@@ -53,9 +53,18 @@ class MyDatabaseHelper(context: Context) : SQLiteOpenHelper(
         )
     }
 
-    fun selectProductJoin(propertyId: Int, productName: String, tableName: String, suffix: String) {
+    fun selectProductJoin(propertyId: Int, productName: String, tableName: String, suffix: String): Cursor{
         val db = this.readableDatabase
-        return db.rawQuery("SELECT ${MyConstanta.Constanta.TITLEPRODUCT}, sum(${MyConstanta.Constanta.QUANTITY}), ${MyConstanta.Constanta.SUFFIX} FROM $tableName ad JOIN ${MyConstanta.Constanta.TABLE_NAME_PROJECT_PRODUCT} pp ON pp.${BaseColumns._ID})
+        return db.rawQuery("SELECT ${MyConstanta.Constanta.TITLEPRODUCT}, sum(${MyConstanta.Constanta.QUANTITY}), ${MyConstanta.Constanta.SUFFIX}" +
+                " FROM $tableName ad " +
+                "JOIN ${MyConstanta.Constanta.TABLE_NAME_PROJECT_PRODUCT} pp" +
+                " ON pp.${BaseColumns._ID}) = ad.${MyConstanta.Constanta.IDPP}" +
+                " JOIN ${MyConstanta.Constanta.TABLE_NAME_PRODUCT} + prod ON" +
+                "prod.${BaseColumns._ID} = pp.${MyConstanta.Constanta.IDPRODUCT}" +
+                " JOIN ${MyConstanta.Constanta.TABLE_NAME} + proj "+
+                "ON proj.${BaseColumns._ID} = pp.${MyConstanta.Constanta.IDPROJECT} " +
+                "WHERE proj.${BaseColumns._ID} = ? and ${MyConstanta.Constanta.TITLEPRODUCT} = ? and ${MyConstanta.Constanta.SUFFIX} =? "+
+                "group by ${MyConstanta.Constanta.TITLEPRODUCT}, ${MyConstanta.Constanta.SUFFIX}", arrayOf(propertyId.toString(),productName,suffix))
 
     }
 
