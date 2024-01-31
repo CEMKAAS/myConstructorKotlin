@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+
+    <!-- TODO: Update blank fragment layout -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_gravity="center|top">>
+        <TextView
+            android:id="@+id/now_warehouse"
+            style="@style/TextAppearance.MyApp.DisplaySmall3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="20dp"
+            android:text="" />
+
+        <TextView
+            android:id="@+id/now_unit"
+            style="@style/TextAppearance.MyApp.DisplaySmall2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="20dp"
+            android:text="" />
+
+
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/product_name_add_menu"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Товар"
+            app:helperText="Введите товар"
+            app:errorEnabled="true">
+
+            <AutoCompleteTextView
+                android:id="@+id/productName_editText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:imeOptions="actionNext"
+                android:inputType="text" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_gravity="left">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/add_edit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="Количество"
+                app:helperText="Укажите кол-во товара"
+                app:helperTextEnabled="true"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                app:endIconMode="custom"
+                app:errorEnabled="true">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionGo"
+                    android:inputType="phone"
+                    />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/suffix_add_menu"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Ед."
+                app:errorEnabled="true">
+
+                <AutoCompleteTextView
+                    android:id="@+id/suffixSpiner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionNext"
+                    android:inputType="none"
+                    app:simpleItems="@array/units"/>
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/price_edit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Цена"
+            app:helperText="Укажите цену за ВЕСЬ товар"
+            app:helperTextEnabled="true"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            app:endIconMode="custom"
+            app:suffixText="₽"
+            app:errorEnabled="true">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:imeOptions="actionGo"
+                android:inputType="phone"
+                />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/category_add_menu"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Категория"
+            app:helperText="Укажите категорию"
+            app:helperTextEnabled="true"
+            app:errorEnabled="true">
+
+            <AutoCompleteTextView
+                android:id="@+id/category_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:imeOptions="actionNext"
+                android:inputType="text" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:hint="Дата"
+            app:endIconDrawable="@drawable/baseline_calendar_month_24"
+            app:endIconMode="custom"
+            app:errorEnabled="true"
+            app:helperText="Укажите дату"
+            app:helperTextEnabled="true">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:imeOptions="actionGo"
+                android:inputType="date" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_horizontal">
+            <Button
+                android:id="@+id/update_button"
+                android:layout_marginTop="10dp"
+                style="@style/Widget.Material3.Button.Icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Обновить"
+                app:icon="@drawable/baseline_add_24" />
+
+            <Button
+                android:id="@+id/delete_button"
+                style="@style/Widget.Material3.Button.Icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="5dp"
+                android:text="Удалить"
+                app:icon="@drawable/baseline_add_24" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/deleteAll"
+        android:contentDescription="Удалить"
+        android:icon="@drawable/baseline_delete_24"
+        android:title="Удалить"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/filler"
+        android:contentDescription="Фильтр"
+        android:icon="@drawable/baseline_filter_list_24"
+        android:title="Фильтр"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/magazine"
+        android:contentDescription="Журнал"
+        android:icon="@drawable/baseline_book_24"
+        android:title="Журнал"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/moreAll"
+        android:contentDescription="Информация"
+        android:title="Информация"
+        app:showAsAction="never" />
+
+
+</menu>

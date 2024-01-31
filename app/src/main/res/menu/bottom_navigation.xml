@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <item android:id="@+id/warehouse_button"
+        android:icon="@drawable/ic_baseline_warehouse_24"
+        android:title="Склад"/>
+
+    <item android:id="@+id/finance_button"
+        android:icon="@drawable/ic_baseline_currency_ruble_24"
+        android:title="Финансы"/>
+
+    <item android:id="@+id/add_button"
+        android:icon="@drawable/baseline_add_shopping_cart_24"
+        android:title="Добавить"/>
+
+    <item android:id="@+id/writeOff_button"
+        android:icon="@drawable/baseline_edit_note_24"
+        android:title="Списание"/>
+</menu>

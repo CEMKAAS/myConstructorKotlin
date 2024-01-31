@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="units">
+        <item>ед</item>
+        <item>шт</item>
+        <item>пачка</item>
+        <item>мешок</item>
+        <item>г</item>
+        <item>кг</item>
+        <item>т</item>
+        <item>мм</item>
+        <item>М</item>
+        <item>л</item>
+        <item>м3</item>
+        <item>м2</item>
+    </string-array>
+
+</resources>
