@@ -1,4 +1,4 @@
 package com.zaroslikov.myconstruction
 
-class Product(name: String, category: String, count: Double, suffix: String) {
+class Product(var name: String, category: String, count: Double, var suffix: String) {
 }

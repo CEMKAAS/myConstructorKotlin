@@ -7,7 +7,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AutoCompleteTextView
+import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.datepicker.CalendarConstraints
@@ -37,7 +39,15 @@ class AddFragment : Fragment() {
     private var productNameList = mutableListOf<String>()
     private var productList = mutableListOf<Product>()
     private lateinit var nowUnit: TextView
-
+    private lateinit var date: TextInputLayout
+    private lateinit var category: AutoCompleteTextView
+    private lateinit var suffixSpiner: AutoCompleteTextView
+    private lateinit var productName: AutoCompleteTextView
+    private lateinit var price_edit: TextInputLayout
+    private lateinit var add_edit: TextInputLayout
+    private lateinit var productNameMenu: TextInputLayout
+    private lateinit var suffixMenu: TextInputLayout
+    private lateinit var categoryMenu: TextInputLayout
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -79,17 +89,17 @@ class AddFragment : Fragment() {
             requireActivity().supportFragmentManager.popBackStack()
         }
 
-        val productName = layout.findViewById<AutoCompleteTextView>(R.id.productName_editText)
-        val add_edit = layout.findViewById<TextInputLayout>(R.id.add_edit)
-        val price_edit = layout.findViewById<TextInputLayout>(R.id.price_edit)
-        val suffixSpiner = layout.findViewById<AutoCompleteTextView>(R.id.suffixSpiner)
-        val category = layout.findViewById<AutoCompleteTextView>(R.id.category_edit)
-        val date = layout.findViewById<TextInputLayout>(R.id.date)
+        productName = layout.findViewById(R.id.productName_editText)
+        add_edit = layout.findViewById(R.id.add_edit)
+        price_edit = layout.findViewById(R.id.price_edit)
+        suffixSpiner = layout.findViewById(R.id.suffixSpiner)
+        category = layout.findViewById(R.id.category_edit)
+        date = layout.findViewById(R.id.date)
         nowUnit = layout.findViewById(R.id.now_warehouse)
 
-        val productNameMenu = layout.findViewById<TextInputLayout>(R.id.product_name_add_menu)
-        val suffixMenu = layout.findViewById<TextInputLayout>(R.id.suffixSpiner)
-        val categoryMenu = layout.findViewById<TextInputLayout>(R.id.category_add_menu)
+        productNameMenu = layout.findViewById(R.id.product_name_add_menu)
+        suffixMenu = layout.findViewById(R.id.suffix_add_menu)
+        categoryMenu = layout.findViewById(R.id.category_add_menu)
 
         addProduct()
 
@@ -117,13 +127,25 @@ class AddFragment : Fragment() {
         }
 
         productName.setOnItemClickListener { adapterView, view, i, l ->
-            val productClick = productList.get(i).name
-            val suffixClick = productList.get(i).suffix
+            val productClick = productList[i].name
+            val suffixClick = productList[i].suffix
 
             if (suffixSpiner.text.toString().equals("")) {
-
+                addDB(productClick, suffixClick, idProject)
+            } else {
+                addDB(productClick, suffixSpiner.text.toString(), idProject)
             }
         }
+
+        suffixSpiner.setOnItemClickListener { adapterView, view, i, l ->
+            addDB(productName.text.toString(), suffixSpiner.text.toString(), idProject)
+        }
+
+        val add = layout.findViewById<Button>(R.id.add_button)
+        add.setOnClickListener {
+            addInDB()
+        }
+
 
         return layout
     }
@@ -155,9 +177,9 @@ class AddFragment : Fragment() {
             myDB.selectProductJoin(idProject, product, MyConstanta.Constanta.TABLE_NAME_ADD, suffix)
         if (cursor.count != 0) {
             cursor.moveToFirst()
-            var productName = cursor.getString(0)
+            val productName = cursor.getString(0)
             var productUnitAdd = cursor.getDouble(1)
-            var suffixName = cursor.getString(2)
+            val suffixName = cursor.getString(2)
             cursor.close()
 
             val cursorWriteOff = myDB.selectProductJoin(
@@ -179,6 +201,97 @@ class AddFragment : Fragment() {
         }
 
     }
+
+    fun addInDB(idProject: Int) {
+        add_edit.isErrorEnabled = false
+        date.isErrorEnabled = false
+        categoryMenu.isErrorEnabled = false
+        suffixMenu.isErrorEnabled = false
+        price_edit.isErrorEnabled = false
+        productNameMenu.isErrorEnabled = false
+
+        if ("" in listOf(
+                productName.text.toString(),
+                suffixSpiner.text.toString(),
+                add_edit.editText?.text.toString(),
+                category.text.toString(),
+                date.editText?.text.toString(),
+                price_edit.editText?.text.toString()
+            )
+        ) {
+            if (productName.text.toString().equals("")) {
+                productNameMenu.error = "Выберите товар!"
+                productNameMenu.error
+            }
+
+            if (suffixSpiner.getText().toString().equals("")) {
+                suffixSpiner.error = "Выберите единицу!"
+                suffixSpiner.error
+            }
+            if (add_edit.editText?.text.toString().equals("")) {
+                add_edit.error = "Укажите кол-во товара!"
+                add_edit.error
+            }
+            if (category.text.toString().equals("")) {
+                categoryMenu.error = "Укажите категорию!"
+                categoryMenu.error
+            }
+            if (date.editText?.text.toString().equals("")) {
+                date.error = "Укажите дату!"
+                date.error
+            }
+            if (price_edit.editText?.text.toString().equals("")) {
+                price_edit.error = "Укажите цену!"
+                price_edit.error
+            }
+        } else {
+            var name = productName.text.toString()[0].uppercaseChar() + productName.text.toString()
+                .substring(1)
+            var suffix = suffixSpiner.text.toString()
+            var price =
+                price_edit.editText?.text.toString().replace(",", ".").replace("[^\\d.]", "")
+            var count = add_edit.editText?.text.toString().replace(",", ".").replace("[^\\d.]", "")
+
+            var categoryProduct =
+                category.text.toString()[0].uppercaseChar() + category.text.toString().substring(1)
+            var dateProduct = date.editText?.text.toString()
+
+            var idProduct = 0
+            var idPP = 0
+
+            val cursorProduct = myDB.seachProductAndSuffix(name, suffix)
+            if (cursorProduct.count == 0) {
+                idProduct = myDB.insertToDbProduct(name, suffix).toInt()
+                productNameList.add(name)
+            } else {
+                cursorProduct.moveToFirst()
+                idProduct = cursorProduct.getInt(0)
+            }
+            cursorProduct.close()
+
+            val cursorPP = myDB.seachPP(idProject, idProduct)
+            if (cursorPP.count == 0) {
+                idPP = myDB.insertToDbProjectProduct(idProject, idProduct).toInt()
+            } else {
+                cursorPP.moveToFirst()
+                idPP = cursorPP.getInt(0)
+            }
+            cursorPP.close()
+
+            myDB.insertToDbProduct(count, categoryProduct, price, dateProduct, idPP)
+            Toast.makeText(
+                requireActivity(),
+                "Добавили ${name} ${count} ${suffix} за ${price} ₽",
+                Toast.LENGTH_LONG
+            )
+
+            if (!categoryList.)
+
+        }
+
+
+    }
+
 
     companion object {
         /**
