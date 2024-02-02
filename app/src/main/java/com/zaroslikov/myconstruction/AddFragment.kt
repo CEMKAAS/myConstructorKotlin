@@ -36,6 +36,7 @@ class AddFragment : Fragment() {
     private var param2: String? = null
 
     private lateinit var myDB: MyDatabaseHelper
+    private var categoryList = mutableListOf<String>()
     private var productNameList = mutableListOf<String>()
     private var productList = mutableListOf<Product>()
     private lateinit var nowUnit: TextView
@@ -62,8 +63,7 @@ class AddFragment : Fragment() {
     ): View? {
         val layout = inflater.inflate(R.layout.fragment_add, container, false)
         myDB = MyDatabaseHelper(requireActivity())
-        var idProject = MainActivity().projectNumer
-
+        val idProject = MainActivity().projectNumer
 
         val appBar = requireActivity().findViewById<MaterialToolbar>(R.id.topAppBar)
         appBar.title = "Мои Покупки"
@@ -101,7 +101,7 @@ class AddFragment : Fragment() {
         suffixMenu = layout.findViewById(R.id.suffix_add_menu)
         categoryMenu = layout.findViewById(R.id.category_add_menu)
 
-        addProduct()
+        addProduct(idProject)
 
         val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
 //        date.editText.text = "${calendar.get(Calendar.DAY_OF_MONTH)} " + (calendar.get(Calendar.MONTH) + 1) + "." + calendar.get(Calendar.YEAR))
@@ -143,7 +143,7 @@ class AddFragment : Fragment() {
 
         val add = layout.findViewById<Button>(R.id.add_button)
         add.setOnClickListener {
-            addInDB()
+            addInDB(idProject)
         }
 
 
@@ -151,7 +151,7 @@ class AddFragment : Fragment() {
     }
 
 
-    fun addProduct() {
+    fun addProduct(idProject:Int) {
         val cursor = myDB.readProduct()
 
         while (cursor.moveToNext()) {
@@ -161,7 +161,7 @@ class AddFragment : Fragment() {
         cursor.close()
 
         val tempList = mutableSetOf<String>()
-        val cursor1 = myDB.seachProduct(idProject)
+        val cursor1 = myDB.seachProduct(idProject.toString())
 
         while (cursor1.moveToNext()) {
             tempList.add(cursor1.getString(0))
@@ -245,16 +245,16 @@ class AddFragment : Fragment() {
                 price_edit.error
             }
         } else {
-            var name = productName.text.toString()[0].uppercaseChar() + productName.text.toString()
+            val name = productName.text.toString()[0].uppercaseChar() + productName.text.toString()
                 .substring(1)
-            var suffix = suffixSpiner.text.toString()
-            var price =
+            val suffix = suffixSpiner.text.toString()
+            val price =
                 price_edit.editText?.text.toString().replace(",", ".").replace("[^\\d.]", "")
-            var count = add_edit.editText?.text.toString().replace(",", ".").replace("[^\\d.]", "")
+            val count = add_edit.editText?.text.toString().replace(",", ".").replace("[^\\d.]", "")
 
-            var categoryProduct =
+            val categoryProduct =
                 category.text.toString()[0].uppercaseChar() + category.text.toString().substring(1)
-            var dateProduct = date.editText?.text.toString()
+            val dateProduct = date.editText?.text.toString()
 
             var idProduct = 0
             var idPP = 0
@@ -278,15 +278,18 @@ class AddFragment : Fragment() {
             }
             cursorPP.close()
 
-            myDB.insertToDbProduct(count, categoryProduct, price, dateProduct, idPP)
+            myDB.insertToDbProductAdd(count.toDouble(), categoryProduct, price.toDouble(), dateProduct, idPP)
             Toast.makeText(
                 requireActivity(),
                 "Добавили ${name} ${count} ${suffix} за ${price} ₽",
                 Toast.LENGTH_LONG
-            )
+            ).show()
 
-            if (!categoryList.)
+            if (!categoryList.contains(categoryProduct)){
+                categoryList.add(categoryProduct)
+            }
 
+            addDB(name,suffix,idProject)
         }
 
 
@@ -294,22 +297,22 @@ class AddFragment : Fragment() {
 
 
     companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment AddFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            AddFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+//        /**
+//         * Use this factory method to create a new instance of
+//         * this fragment using the provided parameters.
+//         *
+//         * @param param1 Parameter 1.
+//         * @param param2 Parameter 2.
+//         * @return A new instance of fragment AddFragment.
+//         */
+//        // TODO: Rename and change types and number of parameters
+//        @JvmStatic
+//        fun newInstance(param1: String, param2: String) =
+//            AddFragment().apply {
+//                arguments = Bundle().apply {
+//                    putString(ARG_PARAM1, param1)
+//                    putString(ARG_PARAM2, param2)
+//                }
+//            }
     }
 }

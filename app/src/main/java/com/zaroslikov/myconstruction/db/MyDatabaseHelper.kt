@@ -4,11 +4,9 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
-import android.database.sqlite.SQLiteDatabase.CursorFactory
 import android.database.sqlite.SQLiteOpenHelper
 import android.provider.BaseColumns
 import android.util.Log
-import com.zaroslikov.myconstruction.AddProject
 
 class MyDatabaseHelper(context: Context) : SQLiteOpenHelper(
     context,
@@ -96,6 +94,46 @@ class MyDatabaseHelper(context: Context) : SQLiteOpenHelper(
         )
     }
 
+    fun selectProjectAllProductAndCategoryAdd(propertyId: Int): Cursor {
+        val db = this.readableDatabase
+        return db.rawQuery(
+            "SELECT ${MyConstanta.Constanta.TITLEPRODUCT}, ${MyConstanta.Constanta.SUFFIX}, ${MyConstanta.Constanta.CATEGORY}" +
+                    " FROM ${MyConstanta.Constanta.TABLE_NAME_ADD} ad" +
+                    " JOIN ${MyConstanta.Constanta.TABLE_NAME_PROJECT_PRODUCT} pp" +
+                    " ON pp.${BaseColumns._ID} = ad.${MyConstanta.Constanta.IDPP}" +
+
+                    " JOIN ${MyConstanta.Constanta.TABLE_NAME_PRODUCT} prod ON" +
+                    " prod.${BaseColumns._ID} = pp.${MyConstanta.Constanta.IDPRODUCT}" +
+
+                    " JOIN ${MyConstanta.Constanta.TABLE_NAME} proj " +
+                    "ON proj.${BaseColumns._ID} = pp.${MyConstanta.Constanta.IDPROJECT}" +
+
+                    " WHERE proj.${BaseColumns._ID} = ?" +
+                    " group by ${MyConstanta.Constanta.TITLEPRODUCT}, ${MyConstanta.Constanta.SUFFIX}",
+            arrayOf(propertyId.toString())
+        )
+    }
+
+    fun selectProjectAllSum(propertyId: Int): Cursor {
+        val db = this.readableDatabase
+        return db.rawQuery(
+            "SELECT sum(${MyConstanta.Constanta.PRICE})" +
+                    " FROM ${MyConstanta.Constanta.TABLE_NAME_ADD} ad" +
+                    " JOIN ${MyConstanta.Constanta.TABLE_NAME_PROJECT_PRODUCT} pp" +
+                    " ON pp.${BaseColumns._ID} = ad.${MyConstanta.Constanta.IDPP}" +
+
+                    " JOIN ${MyConstanta.Constanta.TABLE_NAME_PRODUCT} prod ON" +
+                    " prod.${BaseColumns._ID} = pp.${MyConstanta.Constanta.IDPRODUCT}" +
+
+                    " JOIN ${MyConstanta.Constanta.TABLE_NAME} proj" +
+                    " ON proj.${BaseColumns._ID} = pp.${MyConstanta.Constanta.IDPROJECT}" +
+
+                    " WHERE proj.${BaseColumns._ID} = ?",
+            arrayOf(propertyId.toString())
+        )
+    }
+
+
 
     fun insertToDbProduct(name: String, suffix: String): Long {
         val db = this.writableDatabase
@@ -105,15 +143,21 @@ class MyDatabaseHelper(context: Context) : SQLiteOpenHelper(
         return db.insert(MyConstanta.Constanta.TABLE_NAME_PRODUCT, null, cv)
     }
 
-    fun insertToDbProjectProduct(idProject: Int, idProduct: Int) : Long{
+    fun insertToDbProjectProduct(idProject: Int, idProduct: Int): Long {
         val db = this.writableDatabase
         val cv = ContentValues()
         cv.put(MyConstanta.Constanta.IDPROJECT, idProject)
         cv.put(MyConstanta.Constanta.IDPRODUCT, idProduct)
-        return db.insert(MyConstanta.Constanta.TABLE_NAME_PRODUCT, null,cv)
+        return db.insert(MyConstanta.Constanta.TABLE_NAME_PRODUCT, null, cv)
     }
 
-    fun insertToDbProductAdd(count:Double, category:String, price: Double, date: String, idPP: Int){
+    fun insertToDbProductAdd(
+        count: Double,
+        category: String,
+        price: Double,
+        date: String,
+        idPP: Int
+    ) {
         val db = this.writableDatabase
         val cv = ContentValues()
         cv.put(MyConstanta.Constanta.QUANTITY, count)
@@ -121,8 +165,20 @@ class MyDatabaseHelper(context: Context) : SQLiteOpenHelper(
         cv.put(MyConstanta.Constanta.PRICE, price)
         cv.put(MyConstanta.Constanta.DATE, date)
         cv.put(MyConstanta.Constanta.IDPP, idPP)
-        db.insert(MyConstanta.Constanta.TABLE_NAME_ADD, null,cv)
+        db.insert(MyConstanta.Constanta.TABLE_NAME_ADD, null, cv)
     }
+
+    fun insertToDbProject(title: String, date: String, status: Int) {
+        val db = this.writableDatabase
+        val cv = ContentValues()
+        cv.put(MyConstanta.Constanta.TITLEPRODUCT, title)
+        cv.put(MyConstanta.Constanta.DATEBEGINPROJECT, date)
+        cv.put(MyConstanta.Constanta.DATEFINALPROJECT, date)
+        cv.put(MyConstanta.Constanta.PICTUREROJECT, 0)
+        cv.put(MyConstanta.Constanta.STATUSPROJECT, status)
+        db.insert(MyConstanta.Constanta.TABLE_NAME_ADD, null, cv)
+    }
+
 
 }
 
