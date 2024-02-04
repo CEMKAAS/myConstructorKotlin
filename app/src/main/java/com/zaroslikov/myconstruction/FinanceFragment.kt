@@ -1,15 +1,29 @@
 package com.zaroslikov.myconstruction
 
+import android.database.Cursor
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
-import android.view.TextureView
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
+import androidx.core.util.Pair
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.datepicker.CalendarConstraints
+import com.google.android.material.datepicker.DateValidatorPointBackward
+import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+import com.google.android.material.textfield.TextInputLayout
 import com.zaroslikov.myconstruction.db.MyDatabaseHelper
+import java.text.ParseException
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.TimeZone
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -87,8 +101,94 @@ class FinanceFragment : Fragment() {
 
         add()
 
+        //Создание модального bottomSheet
+        showBottomSheetDialog()
+
+        // Настраиваем адаптер
+        recyclerViewCategory = layout.findViewById<RecyclerView>(R.id.recyclerView)
+        recyclerViewProduct = layout.findViewById<RecyclerView>(R.id.recyclerViewAll)
+
+        val productAdapterCategory = ProductAdapter(categorySumListNow, true)
+        recyclerViewCategory.setAdapter(productAdapterCategory)
+        recyclerViewCategory.setLayoutManager(
+            LinearLayoutManager(
+                activity
+            )
+        )
+
+        val productAdapterProduct = ProductAdapter(productSumListNow, true)
+        recyclerViewProduct.setAdapter(productAdapterProduct)
+        recyclerViewProduct.setLayoutManager(
+            LinearLayoutManager(
+                activity
+            )
+        )
+
+        // Настройка календаря на период
+        val constraintsBuilder = CalendarConstraints.Builder()
+            .setValidator(DateValidatorPointBackward.now())
+            .build()
+
+        datePicker = MaterialDatePicker.Builder.dateRangePicker()
+            .setCalendarConstraints(constraintsBuilder)
+            .setTitleText("Выберите даты")
+            .setSelection(
+                Pair.create<Long, Long>(
+                    MaterialDatePicker.thisMonthInUtcMilliseconds(),
+                    MaterialDatePicker.todayInUtcMilliseconds()
+                )
+            )
+            .build()
+
+        dataSheet.getEditText().setOnClickListener(View.OnClickListener {
+            datePicker.show(activity!!.supportFragmentManager, "wer")
+            datePicker.addOnPositiveButtonClickListener(MaterialPickerOnPositiveButtonClickListener<Pair<Long, Long>> { selection ->
+                val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+                val calendar2 = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+                val startDate = selection.first
+                val endDate = selection.second
+                calendar.timeInMillis = startDate
+                calendar2.timeInMillis = endDate
+                val format = SimpleDateFormat("dd.MM.yyyy")
+                val formattedDate1 = format.format(calendar.time)
+                val formattedDate2 = format.format(calendar2.time)
+                try {
+                    dateFirst = format.parse(formattedDate1)
+                    dateEnd = format.parse(formattedDate2)
+                } catch (e: ParseException) {
+                    throw RuntimeException(e)
+                }
+                dataSheet.getEditText().setText("$formattedDate1-$formattedDate2")
+                productText.text = "По продукции за\n$formattedDate1-$formattedDate2"
+                categoryText.text = "По категориям за\n$formattedDate1-$formattedDate2"
+            })
+        })
 
 
+        // Настройка кнопки в bottomSheet
+        buttonSheet.setOnClickListener(View.OnClickListener {
+            try {
+                filter()
+                val productAdapterCategory = ProductAdapter(categorySumListNow, true)
+                recyclerViewCategory.setAdapter(productAdapterCategory)
+                recyclerViewCategory.setLayoutManager(
+                    LinearLayoutManager(
+                        activity
+                    )
+                )
+                val productAdapterProduct = ProductAdapter(productSumListNow, true)
+                recyclerViewProduct.setAdapter(productAdapterProduct)
+                recyclerViewProduct.setLayoutManager(
+                    LinearLayoutManager(
+                        activity
+                    )
+                )
+                bottomSheetDialog.dismiss()
+            } catch (e: ParseException) {
+                throw RuntimeException(e)
+            }
+        })
+        
         return layout
     }
 
@@ -109,17 +209,92 @@ class FinanceFragment : Fragment() {
 
         val cursorAllSum = myDb.selectProjectAllSum(idPoject)
         cursorAllSum.moveToFirst()
-        allSumText.setText("Общая сумма: ${cursorAllSum.getDouble(0)} ₽")
+        allSumText.text = "Общая сумма: ${cursorAllSum.getDouble(0)} ₽"
         cursorAllSum.close()
 
+        for (category in categoryList) {
+            val cursorCategory = myDb.selectProjectAllSumCategory(idPoject,category)
+            while (cursorCategory.moveToNext()) {
+
+                categorySumList.add(
+                    Product(
+                        cursorCategory.getString(0),
+                        "₽",
+                        cursorCategory.getDouble(1),
+                        cursorCategory.getString(2)
+                    )
+                )
+            }
+            cursorCategory.close()
+        }
 
 
+        for (product in productNameList) {
+            val cursorProduct: Cursor = myDb.selectProjectAllSumProduct(idProject, product)
+            while (cursorProduct.moveToNext()) {
+                productSumList.add(
+                    Product(
+                        cursorProduct.getString(0),
+                        "₽",
+                        cursorProduct.getDouble(2),
+                        cursorProduct.getString(3)
+                    )
+                )
+            }
+            cursorProduct.close()
+        }
+        categorySumListNow.addAll(categorySumList)
+        productSumListNow.addAll(productSumList)
 
 
 
     }
 
+//    @Throws(ParseException::class)
+    fun filter() {
+        productSumListNow.clear()
+        categorySumListNow.clear()
 
+        val format = SimpleDateFormat("dd.MM.yyyy")
+        var sumAll = 0.0
+
+        if (dataSheet.getEditText().getText().toString() != "") {
+            for (productSum in productSumList) {
+                val dateNow = format.parse(productSum.date)
+                if (dateFirst.before(dateNow) && dateEnd.after(dateNow) || dateFirst == dateNow || dateEnd == dateNow) {
+                    productSumListNow.add(productSum)
+                    sumAll += productSum.price
+                }
+            }
+            for (productCategory in categorySumList) {
+                val dateNow = format.parse(productCategory.date)
+                if (dateFirst.before(dateNow) && dateEnd.after(dateNow) || dateFirst == dateNow || dateEnd == dateNow) {
+                    categorySumListNow.add(productCategory)
+                }
+            }
+        }
+        allSumText.text = "Общая сумма: $sumAll ₽"
+    }
+
+
+
+    private fun replaceFragment(fragment: Fragment) {
+        requireActivity().supportFragmentManager.beginTransaction()
+            .replace(R.id.conteiner, fragment, "visible_fragment")
+            .addToBackStack(null)
+            .commit()
+    }
+
+    fun showBottomSheetDialog() {
+        bottomSheetDialog = BottomSheetDialog(requireActivity())
+        bottomSheetDialog.setContentView(R.layout.fragment_bottom)
+        animalsSpinerSheet = bottomSheetDialog.findViewById<TextInputLayout>(R.id.menu)
+        categorySpinerSheet = bottomSheetDialog.findViewById<TextInputLayout>(R.id.menu2)
+        animalsSpinerSheet.setVisibility(View.GONE)
+        categorySpinerSheet.setVisibility(View.GONE)
+        dataSheet = bottomSheetDialog.findViewById<TextInputLayout>(R.id.data_sheet)
+        buttonSheet = bottomSheetDialog.findViewById<Button>(R.id.button_sheet)
+    }
 
 
     companion object {

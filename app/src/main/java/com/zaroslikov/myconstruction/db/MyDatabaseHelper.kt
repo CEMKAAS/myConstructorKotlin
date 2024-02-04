@@ -134,6 +134,26 @@ class MyDatabaseHelper(context: Context) : SQLiteOpenHelper(
     }
 
 
+    fun selectProjectAllSumCategory(propertyId: Int, category: String) : Cursor{
+        val db = this.readableDatabase
+        return db.rawQuery(
+            "SELECT ${MyConstanta.Constanta.CATEGORY}, " +
+                    "sum(${MyConstanta.Constanta.PRICE}), ${MyConstanta.Constanta.DATE}" +
+                    " FROM ${MyConstanta.Constanta.TABLE_NAME_ADD} ad" +
+                    " JOIN ${MyConstanta.Constanta.TABLE_NAME_PROJECT_PRODUCT} pp" +
+                    " ON pp.${BaseColumns._ID} = ad.${MyConstanta.Constanta.IDPP}" +
+
+                    " JOIN ${MyConstanta.Constanta.TABLE_NAME_PRODUCT} prod ON" +
+                    " prod.${BaseColumns._ID} = pp.${MyConstanta.Constanta.IDPRODUCT}" +
+
+                    " JOIN ${MyConstanta.Constanta.TABLE_NAME} proj" +
+                    " ON proj.${BaseColumns._ID} = pp.${MyConstanta.Constanta.IDPROJECT}" +
+
+                    " WHERE proj.${BaseColumns._ID} = ? and ${MyConstanta.Constanta.CATEGORY}",
+            arrayOf(propertyId.toString())
+        )
+    }
+
 
     fun insertToDbProduct(name: String, suffix: String): Long {
         val db = this.writableDatabase

@@ -13,9 +13,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationItemView
 class CustomAdapterMagazine(val products: List<Product>, val myRow: Int) :
     RecyclerView.Adapter<CustomAdapterMagazine.MyViewHolder>(), Listener {
 
-
-
-
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
@@ -46,6 +43,7 @@ class CustomAdapterMagazine(val products: List<Product>, val myRow: Int) :
 
     class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
+        // ToDO Конструктор
 
         val nameTxt = itemView.findViewById<TextView>(R.id.name_txt)
         val categoryTxt = itemView.findViewById<TextView>(R.id.category_txt)
