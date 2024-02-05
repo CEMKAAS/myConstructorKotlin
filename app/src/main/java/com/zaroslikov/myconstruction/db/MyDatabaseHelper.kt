@@ -134,7 +134,7 @@ class MyDatabaseHelper(context: Context) : SQLiteOpenHelper(
     }
 
 
-    fun selectProjectAllSumCategory(propertyId: Int, category: String) : Cursor{
+    fun selectProjectAllSumCategory(propertyId: Int, category: String): Cursor {
         val db = this.readableDatabase
         return db.rawQuery(
             "SELECT ${MyConstanta.Constanta.CATEGORY}, " +
@@ -149,8 +149,64 @@ class MyDatabaseHelper(context: Context) : SQLiteOpenHelper(
                     " JOIN ${MyConstanta.Constanta.TABLE_NAME} proj" +
                     " ON proj.${BaseColumns._ID} = pp.${MyConstanta.Constanta.IDPROJECT}" +
 
-                    " WHERE proj.${BaseColumns._ID} = ? and ${MyConstanta.Constanta.CATEGORY}",
-            arrayOf(propertyId.toString())
+                    " WHERE proj.${BaseColumns._ID} = ? and ${MyConstanta.Constanta.CATEGORY} =?",
+            arrayOf(propertyId.toString(), category)
+        )
+    }
+
+    fun selectProjectAllSumProduct(propertyId: Int, product: String): Cursor {
+        val db = this.readableDatabase
+        return db.rawQuery(
+            "SELECT ${MyConstanta.Constanta.TITLEPRODUCT}, " +
+                    "${MyConstanta.Constanta.SUFFIX}, sum(${MyConstanta.Constanta.PRICE}) " +
+                    " FROM ${MyConstanta.Constanta.TABLE_NAME_ADD} ad" +
+                    " JOIN ${MyConstanta.Constanta.TABLE_NAME_PROJECT_PRODUCT} pp" +
+                    " ON pp.${BaseColumns._ID} = ad.${MyConstanta.Constanta.IDPP}" +
+
+                    " JOIN ${MyConstanta.Constanta.TABLE_NAME_PRODUCT} prod ON" +
+                    " prod.${BaseColumns._ID} = pp.${MyConstanta.Constanta.IDPRODUCT}" +
+
+                    " JOIN ${MyConstanta.Constanta.TABLE_NAME} proj" +
+                    " ON proj.${BaseColumns._ID} = pp.${MyConstanta.Constanta.IDPROJECT}" +
+
+                    " WHERE proj.${BaseColumns._ID} =? and ${MyConstanta.Constanta.TITLEPRODUCT} =?",
+            arrayOf(propertyId.toString(), product)
+        )
+    }
+
+    fun readAddMagazine(idProject: Int): Cursor {
+        val db = this.readableDatabase
+        return db.rawQuery(
+            "SELECT ad.${BaseColumns._ID}, ${MyConstanta.Constanta.TITLEPRODUCT}, ${MyConstanta.Constanta.CATEGORY}, ${MyConstanta.Constanta.QUANTITY}, ${MyConstanta.Constanta.PRICE}, ${MyConstanta.Constanta.DATE}, ${MyConstanta.Constanta.SUFFIX}" +
+                    " FROM ${MyConstanta.Constanta.TABLE_NAME_ADD} ad" +
+
+                    " JOIN ${MyConstanta.Constanta.TABLE_NAME_PROJECT_PRODUCT} pp" +
+                    " ON pp. ${BaseColumns._ID} =ad. ${MyConstanta.Constanta.IDPP}" +
+
+                    " JOIN ${MyConstanta.Constanta.TABLE_NAME_PRODUCT} prod" +
+                    " ON prod.${BaseColumns._ID} = pp.${MyConstanta.Constanta.IDPRODUCT}" +
+
+                    " JOIN ${MyConstanta.Constanta.TABLE_NAME} proj" +
+                    " ON proj.${BaseColumns._ID} = pp.${MyConstanta.Constanta.IDPROJECT}" +
+                    " WHERE proj.${BaseColumns._ID} = ?", arrayOf(idProject.toString())
+        )
+    }
+
+    fun readWriteOffMagazine(idProject: Int): Cursor {
+        val db = this.readableDatabase
+        return db.rawQuery(
+            "SELECT ad.${BaseColumns._ID}, ${MyConstanta.Constanta.TITLEPRODUCT}, ${MyConstanta.Constanta.CATEGORY}, ${MyConstanta.Constanta.QUANTITY}, ${MyConstanta.Constanta.PRICE}, ${MyConstanta.Constanta.SUFFIX}" +
+                    " FROM ${MyConstanta.Constanta.TABLE_NAME_WRITEOFF} ad" +
+
+                    " JOIN ${MyConstanta.Constanta.TABLE_NAME_PROJECT_PRODUCT} pp" +
+                    " ON pp. ${BaseColumns._ID} =ad. ${MyConstanta.Constanta.IDPP}" +
+
+                    " JOIN ${MyConstanta.Constanta.TABLE_NAME_PRODUCT} prod" +
+                    " ON prod.${BaseColumns._ID} = pp.${MyConstanta.Constanta.IDPRODUCT}" +
+
+                    " JOIN ${MyConstanta.Constanta.TABLE_NAME} proj" +
+                    " ON proj.${BaseColumns._ID} = pp.${MyConstanta.Constanta.IDPROJECT}" +
+                    " WHERE proj.${BaseColumns._ID} = ?", arrayOf(idProject.toString())
         )
     }
 
