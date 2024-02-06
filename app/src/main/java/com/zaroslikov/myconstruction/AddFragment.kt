@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.TextView
@@ -35,7 +36,7 @@ class AddFragment : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
 
-    private lateinit var myDB: MyDatabaseHelper
+    lateinit var myDB: MyDatabaseHelper
     private var categoryList = mutableListOf<String>()
     private var productNameList = mutableListOf<String>()
     private var productList = mutableListOf<Product>()
@@ -49,40 +50,33 @@ class AddFragment : Fragment() {
     private lateinit var productNameMenu: TextInputLayout
     private lateinit var suffixMenu: TextInputLayout
     private lateinit var categoryMenu: TextInputLayout
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val layout = inflater.inflate(R.layout.fragment_add, container, false)
+
         myDB = MyDatabaseHelper(requireActivity())
+
         val idProject = MainActivity().projectNumer
 
         val appBar = requireActivity().findViewById<MaterialToolbar>(R.id.topAppBar)
         appBar.title = "Мои Покупки"
-        appBar.menu.findItem(R.id.filler).setVisible(false)
-        appBar.menu.findItem(R.id.moreAll).setVisible(true)
-        appBar.menu.findItem(R.id.magazine).setVisible(true)
+        appBar.menu.findItem(R.id.filler).isVisible = false
+        appBar.menu.findItem(R.id.moreAll).isVisible = true
+        appBar.menu.findItem(R.id.magazine).isVisible = true
         appBar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.moreAll -> {
-
+                    replaceFragment(InFragment())
                     appBar.title = "Информация"
                 }
-
                 R.id.magazine -> {
-
+                    replaceFragment(MagazineManagerFragment())
                 }
             }
             true
-
         }
 
         appBar.setNavigationOnClickListener {
@@ -103,8 +97,9 @@ class AddFragment : Fragment() {
 
         addProduct(idProject)
 
-        val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
-//        date.editText.text = "${calendar.get(Calendar.DAY_OF_MONTH)} " + (calendar.get(Calendar.MONTH) + 1) + "." + calendar.get(Calendar.YEAR))
+        // Настройка календаря
+        val calendar = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("UTC"))
+        date.editText!!.setText(calendar[java.util.Calendar.DAY_OF_MONTH].toString() + "." + (calendar[java.util.Calendar.MONTH] + 1) + "." + calendar[java.util.Calendar.YEAR])
 
         val constraintsBuilder = CalendarConstraints.Builder()
             .setValidator(DateValidatorPointBackward.now())
@@ -130,8 +125,9 @@ class AddFragment : Fragment() {
             val productClick = productList[i].name
             val suffixClick = productList[i].suffix
 
-            if (suffixSpiner.text.toString().equals("")) {
+            if (suffixSpiner.text.toString() == "") {
                 addDB(productClick, suffixClick, idProject)
+                suffixSpiner.setText(suffixClick, false)
             } else {
                 addDB(productClick, suffixSpiner.text.toString(), idProject)
             }
@@ -144,14 +140,22 @@ class AddFragment : Fragment() {
         val add = layout.findViewById<Button>(R.id.add_button)
         add.setOnClickListener {
             addInDB(idProject)
+            setArrayAdapter()
         }
 
 
         return layout
     }
 
+    override fun onStart() {
+        super.onStart()
+        val view = view
+        if (view != null) {
+            setArrayAdapter()
+        }
+    }
 
-    fun addProduct(idProject:Int) {
+    private fun addProduct(idProject: Int) {
         val cursor = myDB.readProduct()
 
         while (cursor.moveToNext()) {
@@ -162,17 +166,16 @@ class AddFragment : Fragment() {
 
         val tempList = mutableSetOf<String>()
         val cursor1 = myDB.seachProduct(idProject.toString())
-
         while (cursor1.moveToNext()) {
             tempList.add(cursor1.getString(0))
         }
         cursor1.close()
 
-        //todo
+        categoryList = tempList.toMutableList()
 
     }
 
-    fun addDB(product: String, suffix: String, idProject: Int) {
+    private fun addDB(product: String, suffix: String, idProject: Int) {
         val cursor =
             myDB.selectProductJoin(idProject, product, MyConstanta.Constanta.TABLE_NAME_ADD, suffix)
         if (cursor.count != 0) {
@@ -194,6 +197,7 @@ class AddFragment : Fragment() {
                 val productUnitWriteOff = cursorWriteOff.getDouble(1)
                 productUnitAdd -= productUnitWriteOff
             }
+            cursorWriteOff.close()
             nowUnit.text = " На складе $productName $productUnitAdd  $suffixName"
 
         } else {
@@ -202,7 +206,7 @@ class AddFragment : Fragment() {
 
     }
 
-    fun addInDB(idProject: Int) {
+    private fun addInDB(idProject: Int) {
         add_edit.isErrorEnabled = false
         date.isErrorEnabled = false
         categoryMenu.isErrorEnabled = false
@@ -219,28 +223,28 @@ class AddFragment : Fragment() {
                 price_edit.editText?.text.toString()
             )
         ) {
-            if (productName.text.toString().equals("")) {
+            if (productName.text.toString() == "") {
                 productNameMenu.error = "Выберите товар!"
                 productNameMenu.error
             }
 
-            if (suffixSpiner.getText().toString().equals("")) {
+            if (suffixSpiner.text.toString() == "") {
                 suffixSpiner.error = "Выберите единицу!"
                 suffixSpiner.error
             }
-            if (add_edit.editText?.text.toString().equals("")) {
+            if (add_edit.editText?.text.toString() == "") {
                 add_edit.error = "Укажите кол-во товара!"
                 add_edit.error
             }
-            if (category.text.toString().equals("")) {
+            if (category.text.toString() == "") {
                 categoryMenu.error = "Укажите категорию!"
                 categoryMenu.error
             }
-            if (date.editText?.text.toString().equals("")) {
+            if (date.editText?.text.toString() == "") {
                 date.error = "Укажите дату!"
                 date.error
             }
-            if (price_edit.editText?.text.toString().equals("")) {
+            if (price_edit.editText?.text.toString() == "") {
                 price_edit.error = "Укажите цену!"
                 price_edit.error
             }
@@ -257,7 +261,6 @@ class AddFragment : Fragment() {
             val dateProduct = date.editText?.text.toString()
 
             var idProduct = 0
-            var idPP = 0
 
             val cursorProduct = myDB.seachProductAndSuffix(name, suffix)
             if (cursorProduct.count == 0) {
@@ -270,49 +273,62 @@ class AddFragment : Fragment() {
             cursorProduct.close()
 
             val cursorPP = myDB.seachPP(idProject, idProduct)
-            if (cursorPP.count == 0) {
-                idPP = myDB.insertToDbProjectProduct(idProject, idProduct).toInt()
+           var idPP = if (cursorPP.count == 0) { // ToDO интересно
+                myDB.insertToDbProjectProduct(idProject, idProduct).toInt()
             } else {
                 cursorPP.moveToFirst()
-                idPP = cursorPP.getInt(0)
+                cursorPP.getInt(0)
             }
             cursorPP.close()
 
-            myDB.insertToDbProductAdd(count.toDouble(), categoryProduct, price.toDouble(), dateProduct, idPP)
+            myDB.insertToDbProductAdd(
+                count.toDouble(),
+                categoryProduct,
+                price.toDouble(),
+                dateProduct,
+                idPP
+            )
             Toast.makeText(
                 requireActivity(),
-                "Добавили ${name} ${count} ${suffix} за ${price} ₽",
+                "Добавили $name $count $suffix за $price ₽",
                 Toast.LENGTH_LONG
             ).show()
 
-            if (!categoryList.contains(categoryProduct)){
+            if (!categoryList.contains(categoryProduct)) {
                 categoryList.add(categoryProduct)
             }
 
-            addDB(name,suffix,idProject)
+            addDB(name, suffix, idProject)
         }
 
 
     }
 
+    fun setArrayAdapter() {
+        //Товар
+        val arrayAdapterProduct = ArrayAdapter<String>(
+            requireContext().applicationContext,
+            android.R.layout.simple_spinner_dropdown_item,
+            productNameList
+        )
+        productName.setAdapter<ArrayAdapter<String>>(arrayAdapterProduct)
 
+        //Категории
+        val arrayAdapterCategory = ArrayAdapter<String>(
+            requireContext().applicationContext,
+            android.R.layout.simple_spinner_dropdown_item,
+            categoryList
+        )
+        category.setAdapter<ArrayAdapter<String>>(arrayAdapterCategory)
+    }
+
+
+    private fun replaceFragment(fragment: Fragment) {
+        requireActivity().supportFragmentManager.beginTransaction()
+            .replace(R.id.conteiner, fragment, "visible_fragment")
+            .addToBackStack(null)
+            .commit()
+    }
     companion object {
-//        /**
-//         * Use this factory method to create a new instance of
-//         * this fragment using the provided parameters.
-//         *
-//         * @param param1 Parameter 1.
-//         * @param param2 Parameter 2.
-//         * @return A new instance of fragment AddFragment.
-//         */
-//        // TODO: Rename and change types and number of parameters
-//        @JvmStatic
-//        fun newInstance(param1: String, param2: String) =
-//            AddFragment().apply {
-//                arguments = Bundle().apply {
-//                    putString(ARG_PARAM1, param1)
-//                    putString(ARG_PARAM2, param2)
-//                }
-//            }
     }
 }

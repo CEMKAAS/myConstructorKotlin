@@ -4,14 +4,12 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.get
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentTransaction
-import androidx.fragment.app.replace
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.zaroslikov.myconstruction.databinding.ActivityMainBinding
 import com.zaroslikov.myconstruction.db.MyDatabaseHelper
+import com.zaroslikov.myconstruction.project.MenuProjectFragment
 
 class MainActivity : AppCompatActivity() {
 
@@ -37,7 +35,7 @@ class MainActivity : AppCompatActivity() {
         fab.visibility = View.GONE
 
         val appBar = findViewById<MaterialToolbar>(R.id.topAppBar)
-        appBar.setOnMenuItemClickListener { it ->
+        appBar.setOnMenuItemClickListener {
             true
         }
 
@@ -46,7 +44,7 @@ class MainActivity : AppCompatActivity() {
         binding.navView.setOnItemSelectedListener { item : MenuItem ->
             when(item.itemId){
                 R.id.warehouse_button -> {
-                    replaceFragment(WarahouseFragment())
+                    replaceFragment(WarehouseFragment())
                     appBar.title = "Мой Склад"
                     fab.hide()
                     fab.visibility = View.GONE
@@ -68,7 +66,7 @@ class MainActivity : AppCompatActivity() {
         supportFragmentManager.addOnBackStackChangedListener {
             val fragment = supportFragmentManager.findFragmentByTag("visible_fragment")
 
-            if (fragment is WarahouseFragment) {
+            if (fragment is WarehouseFragment) {
                 binding.navView.visibility = View.VISIBLE
                 position = 0
             }
@@ -99,18 +97,18 @@ class MainActivity : AppCompatActivity() {
 
         when (cursor.count) {
             0 -> {
-                replaceFragment(AddProject())
+                replaceFragment(AddProjectFragment())
             }
 
             1 -> {
                 cursor.moveToNext()
                 projectNumer = cursor.getInt(0)
 
-                replaceFragment(WarahouseFragment())
+                replaceFragment(WarehouseFragment())
             }
 
             else -> {
-//                replaceFragment(Men)
+                replaceFragment(MenuProjectFragment())
             }
         }
         cursor.close()

@@ -20,10 +20,10 @@ class InFragment : Fragment() {
 
         val appBar = requireActivity().findViewById<MaterialToolbar>(R.id.topAppBar)
         appBar.title = "Информация"
-        appBar.menu.findItem(R.id.filler).setVisible(false)
-        appBar.menu.findItem(R.id.deleteAll).setVisible(false)
-        appBar.menu.findItem(R.id.moreAll).setVisible(false)
-        appBar.menu.findItem(R.id.magazine).setVisible(false)
+        appBar.menu.findItem(R.id.filler).isVisible = false
+        appBar.menu.findItem(R.id.deleteAll).isVisible = false
+        appBar.menu.findItem(R.id.moreAll).isVisible = false
+        appBar.menu.findItem(R.id.magazine).isVisible = false
         appBar.setNavigationOnClickListener {
             requireActivity().supportFragmentManager.popBackStack()
         }

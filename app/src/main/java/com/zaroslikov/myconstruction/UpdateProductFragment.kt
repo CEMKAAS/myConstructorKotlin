@@ -1,23 +1,19 @@
 package com.zaroslikov.myconstruction
 
-import android.R
-import android.icu.util.Calendar
-import android.icu.util.TimeZone
 import android.os.Bundle
+import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView.OnItemClickListener
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.TextView
 import android.widget.Toast
-import androidx.fragment.app.Fragment
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.DateValidatorPointBackward
-import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.datepicker.MaterialDatePicker.Builder.datePicker
 import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -25,11 +21,11 @@ import com.google.android.material.textfield.TextInputLayout
 import com.zaroslikov.myconstruction.db.MyConstanta
 import com.zaroslikov.myconstruction.db.MyDatabaseHelper
 import java.text.SimpleDateFormat
-import java.util.*
-
+import java.util.Calendar
+import java.util.Locale
+import java.util.TimeZone
 
 class UpdateProductFragment : Fragment() {
-
     lateinit var myDB: MyDatabaseHelper
     var productNameList: List<String> = mutableListOf()
     var categoryList: List<String> = mutableListOf()
@@ -46,12 +42,6 @@ class UpdateProductFragment : Fragment() {
     lateinit var productNameMenu: TextInputLayout
     lateinit var suffixMenu: TextInputLayout
     lateinit var categoryMenu: TextInputLayout
-
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -98,9 +88,8 @@ class UpdateProductFragment : Fragment() {
             true
         }
 
-        appBar.setNavigationOnClickListener { activity!!.supportFragmentManager.popBackStack() }
+        appBar.setNavigationOnClickListener { requireActivity().supportFragmentManager.popBackStack() }
 
-        // Настройка календаря
         // Настройка календаря
         val constraintsBuilder = CalendarConstraints.Builder()
             .setValidator(DateValidatorPointBackward.now())
@@ -115,7 +104,7 @@ class UpdateProductFragment : Fragment() {
         date.editText!!.setOnClickListener {
             datePicker.show(requireActivity().supportFragmentManager, "wer")
             datePicker.addOnPositiveButtonClickListener(MaterialPickerOnPositiveButtonClickListener<Any?> { selection ->
-                val calendar: Calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+                val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
                 calendar.timeInMillis = selection as Long
                 val format = SimpleDateFormat("dd.MM.yyyy")
                 val formattedDate: String = format.format(calendar.getTime())
@@ -154,7 +143,7 @@ class UpdateProductFragment : Fragment() {
         addProduct()
 
         productName.onItemClickListener =
-            OnItemClickListener { parent, view, position, id -> //Назначаем суффикс из продукта
+            AdapterView.OnItemClickListener { parent, view, position, id -> //Назначаем суффикс из продукта
                 val productClick = productNameList[position]
                 val cursorProduct = myDB.seachProduct(productClick)
                 while (cursorProduct.moveToNext()) {
@@ -180,6 +169,8 @@ class UpdateProductFragment : Fragment() {
 
         return layout
     }
+
+
 
     //Добавляем продукцию в список из БД
     fun addProduct() {
@@ -325,7 +316,7 @@ class UpdateProductFragment : Fragment() {
     }
 
     //Обновляем Списание
-    fun upDateProductWriteOff() {
+    private fun upDateProductWriteOff() {
         add_edit.isErrorEnabled = false
         date.isErrorEnabled = false
         categoryMenu.isErrorEnabled = false
@@ -367,7 +358,7 @@ class UpdateProductFragment : Fragment() {
     }
 
     //Проверяем уходим ли в минус или нет
-    fun addDB(name: String, count: Double, suffix: String?): Boolean {
+    private fun addDB(name: String, count: Double, suffix: String?): Boolean {
         val cursor = myDB.selectProductJoin(
             idProject, name, MyConstanta.Constanta.TABLE_NAME_ADD,
             suffix!!
@@ -454,11 +445,11 @@ class UpdateProductFragment : Fragment() {
         }
     }
 
-    fun deleteProduct() {
+    private fun deleteProduct() {
         if (nameMagazine.equals("Мои Покупки")) {
-            myDB.deleteOneRowAdd(productUpDate.getId(), MyConstanta.TABLE_NAME_ADD)
+            myDB.deleteOneRowAdd(productUpDate.getId(), MyConstanta.Constanta.TABLE_NAME_ADD)
         } else if (nameMagazine.equals("Мои Списания")) {
-            myDB.deleteOneRowAdd(productUpDate.getId(), MyConstanta.TABLE_NAME_WRITEOFF)
+            myDB.deleteOneRowAdd(productUpDate.getId(), MyConstanta.Constanta.TABLE_NAME_WRITEOFF)
         }
         replaceFragment(MagazineManagerFragment())
     }
@@ -470,25 +461,22 @@ class UpdateProductFragment : Fragment() {
             .commit()
     }
 
-    fun setArrayAdapter() {
+    private fun setArrayAdapter() {
         //Товар
-        arrayAdapterProduct = ArrayAdapter<String>(
-            activity!!.applicationContext,
+       val arrayAdapterProduct = ArrayAdapter<String>(
+            requireActivity().applicationContext,
             R.layout.simple_spinner_dropdown_item,
             productNameList
         )
         productName.setAdapter(arrayAdapterProduct)
 
         //Категории
-        arrayAdapterCategory = ArrayAdapter<String>(
-            activity!!.applicationContext,
+        val arrayAdapterCategory = ArrayAdapter<String>(
+            requireActivity().applicationContext,
             R.layout.simple_spinner_dropdown_item,
             categoryList
         )
         category.setAdapter(arrayAdapterCategory)
     }
 
-    companion object {
-
-    }
 }

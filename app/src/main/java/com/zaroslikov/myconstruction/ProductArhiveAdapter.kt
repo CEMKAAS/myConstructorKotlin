@@ -1,18 +1,20 @@
 package com.zaroslikov.myconstruction
 
-import android.R
+
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 
 
-class ProductArhiveAdapter(var productsList: List<Product>) :
+class ProductArhiveAdapter(private var productsList: List<Product>) :
     RecyclerView.Adapter<ProductArhiveAdapter.MyViewHolder>() {
+
+
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
-    ): ProductArhiveAdapter.MyViewHolder {
+    ): MyViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val view: View = inflater.inflate(R.layout.my_row_product_arhive, parent, false)
         return MyViewHolder(view)

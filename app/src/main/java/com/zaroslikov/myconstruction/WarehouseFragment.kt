@@ -1,39 +1,37 @@
 package com.zaroslikov.myconstruction
 
-import android.R
 import android.app.ActionBar
-import android.icu.util.Calendar
-import android.icu.util.TimeZone
 import android.os.Bundle
-import android.view.*
+import android.view.Gravity
+import androidx.fragment.app.Fragment
+import android.view.LayoutInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import android.widget.TableLayout
 import android.widget.TableRow
 import android.widget.TextView
-import androidx.fragment.app.Fragment
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.zaroslikov.myconstruction.db.MyConstanta
 import com.zaroslikov.myconstruction.db.MyDatabaseHelper
+import com.zaroslikov.myconstruction.project.MenuProjectFragment
+import java.util.Calendar
+import java.util.TimeZone
 
-
-class WarahouseFragment : Fragment() {
+class WarehouseFragment : Fragment() {
 
     lateinit var myDB : MyDatabaseHelper
 
     var productAllList = mutableListOf<Product>()
     var productList = mutableListOf<Product>()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
-        val layout = inflater.inflate(R.layout.fragment_warahouse, container, false)
+    ): View? {
+        val layout = inflater.inflate(R.layout.fragment_warehouse, container, false)
         myDB = MyDatabaseHelper(requireContext())
 
         val fab = requireActivity().findViewById<ExtendedFloatingActionButton>(R.id.extended_fab)
@@ -90,11 +88,8 @@ class WarahouseFragment : Fragment() {
             builder.show()
         })
 
-
-
         return layout
     }
-
     //Формируем список из БД
     fun add() {
         val cursor = myDB.selectProjectAllProductAndCategoryAdd(idProject)
@@ -110,10 +105,10 @@ class WarahouseFragment : Fragment() {
             val cursorAdd = myDB.selectProductJoin(
                 idProject,
                 product.name,
-                MyConstanta.TABLE_NAME_ADD,
+                MyConstanta.Constanta.TABLE_NAME_ADD,
                 product.suffix
             )
-            if (cursorAdd.getCount() !== 0) {
+            if (cursorAdd.count !== 0) {
                 cursorAdd.moveToFirst()
                 productName = cursorAdd.getString(0)
                 productUnitAdd = cursorAdd.getDouble(1)
@@ -123,10 +118,10 @@ class WarahouseFragment : Fragment() {
             val cursorWriteOff = myDB.selectProductJoin(
                 idProject,
                 product.name,
-                MyConstanta.TABLE_NAME_WRITEOFF,
+                MyConstanta.Constanta.TABLE_NAME_WRITEOFF,
                 product.suffix
             )
-            if (cursorWriteOff.getCount() !== 0) {
+            if (cursorWriteOff.count !== 0) {
                 cursorWriteOff.moveToFirst()
                 productUnitWriteOff = cursorWriteOff.getDouble(1)
             }
@@ -138,7 +133,7 @@ class WarahouseFragment : Fragment() {
 
 
     // Настраиваем программно EditText
-    fun onBackPressed() {
+    private fun onBackPressed() {
         val tableLayout = layout.findViewById(R.id.tableLayout) as TableLayout
         var rowI = 0
         for (product in productList) {
@@ -147,20 +142,20 @@ class WarahouseFragment : Fragment() {
                 TableRow.LayoutParams.MATCH_PARENT,
                 TableRow.LayoutParams.WRAP_CONTENT
             )
-            tableRow.setGravity(Gravity.CENTER_HORIZONTAL)
+            tableRow.gravity = Gravity.CENTER_HORIZONTAL
             for (i in 0..2) {
                 val til = TextView(activity)
                 when (i) {
                     0 -> {
-                        til.setText(product.name + "  ")
+                        til.text = product.name + "  "
                         tableRow.addView(til, i)
                     }
                     1 -> {
-                        til.setText(product.count.toString())
+                        til.text = product.count.toString()
                         tableRow.addView(til, i)
                     }
                     2 -> {
-                        til.setText("  " + product.suffix)
+                        til.text = "  " + product.suffix
                         tableRow.addView(til, i)
                     }
                 }
@@ -178,9 +173,4 @@ class WarahouseFragment : Fragment() {
             .commit()
     }
 
-
-
-    companion object {
-
-    }
 }

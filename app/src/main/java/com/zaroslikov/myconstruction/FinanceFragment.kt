@@ -38,13 +38,13 @@ private const val ARG_PARAM2 = "param2"
  */
 class FinanceFragment : Fragment() {
 
-    lateinit var myDb: MyDatabaseHelper
-    lateinit var allSumText: TextView
-    lateinit var categoryText: TextView
-    lateinit var productText: TextView
+    private lateinit var myDb: MyDatabaseHelper
+    private lateinit var allSumText: TextView
+    private lateinit var categoryText: TextView
+    private lateinit var productText: TextView
 
-    lateinit var dataSheet: TextInputLayout
-    lateinit var buttonSheet : Button
+    private lateinit var dataSheet: TextInputLayout
+    private lateinit var buttonSheet : Button
 
     private var productSumList = mutableListOf<Product>()
     private var categorySumList = mutableListOf<Product>()
@@ -59,11 +59,6 @@ class FinanceFragment : Fragment() {
 
     lateinit var bottomSheetDialog : BottomSheetDialog
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -77,10 +72,10 @@ class FinanceFragment : Fragment() {
         val appBar = requireActivity().findViewById<MaterialToolbar>(R.id.topAppBar)
         appBar.title = "Мои Финансы"
         appBar.setNavigationIcon(R.drawable.baseline_arrow_back_24)
-        appBar.menu.findItem(R.id.filler).setVisible(false)
-        appBar.menu.findItem(R.id.deleteAll).setVisible(false)
-        appBar.menu.findItem(R.id.moreAll).setVisible(true)
-        appBar.menu.findItem(R.id.magazine).setVisible(true)
+        appBar.menu.findItem(R.id.filler).isVisible = false
+        appBar.menu.findItem(R.id.deleteAll).isVisible = false
+        appBar.menu.findItem(R.id.moreAll).isVisible = true
+        appBar.menu.findItem(R.id.magazine).isVisible = true
         appBar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.filler -> {
@@ -141,7 +136,7 @@ class FinanceFragment : Fragment() {
             )
             .build()
 
-        dataSheet.getEditText()?.setOnClickListener(View.OnClickListener {
+        dataSheet.editText?.setOnClickListener(View.OnClickListener {
             datePicker.show(requireActivity().supportFragmentManager, "wer")
             datePicker.addOnPositiveButtonClickListener(MaterialPickerOnPositiveButtonClickListener<Pair<Long, Long>> { selection ->
                 val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
@@ -159,7 +154,7 @@ class FinanceFragment : Fragment() {
                 } catch (e: ParseException) {
                     throw RuntimeException(e)
                 }
-                dataSheet.getEditText()?.setText("$formattedDate1-$formattedDate2")
+                dataSheet.editText?.setText("$formattedDate1-$formattedDate2")
                 productText.text = "По продукции за\n$formattedDate1-$formattedDate2"
                 categoryText.text = "По категориям за\n$formattedDate1-$formattedDate2"
             })
@@ -251,7 +246,7 @@ class FinanceFragment : Fragment() {
         val format = SimpleDateFormat("dd.MM.yyyy")
         var sumAll = 0.0
 
-        if (dataSheet.getEditText().getText().toString() != "") {
+        if (dataSheet.editText?.text.toString() != "") {
             for (productSum in productSumList) {
                 val dateNow = format.parse(productSum.date)
                 if (dateFirst.before(dateNow) && dateEnd.after(dateNow) || dateFirst == dateNow || dateEnd == dateNow) {
@@ -282,14 +277,12 @@ class FinanceFragment : Fragment() {
         bottomSheetDialog.setContentView(R.layout.fragment_bottom)
         val animalsSpinerSheet = bottomSheetDialog.findViewById<TextInputLayout>(R.id.menu)
         val categorySpinerSheet = bottomSheetDialog.findViewById<TextInputLayout>(R.id.menu2)
-        animalsSpinerSheet?.setVisibility(View.GONE)
-        categorySpinerSheet?.setVisibility(View.GONE)
+        animalsSpinerSheet?.visibility = View.GONE
+        categorySpinerSheet?.visibility = View.GONE
         dataSheet = bottomSheetDialog.findViewById<TextInputLayout>(R.id.data_sheet)!!
         buttonSheet = bottomSheetDialog.findViewById<Button>(R.id.button_sheet)!!
     }
 
 
-    companion object {
-
-    }
+    companion object
 }

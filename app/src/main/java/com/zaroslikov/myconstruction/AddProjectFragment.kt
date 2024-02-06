@@ -3,11 +3,11 @@ package com.zaroslikov.myconstruction
 import android.icu.util.Calendar
 import android.icu.util.TimeZone
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import androidx.fragment.app.Fragment
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.DateValidatorPointBackward
@@ -15,19 +15,10 @@ import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.google.android.material.textfield.TextInputLayout
 import com.zaroslikov.myconstruction.db.MyDatabaseHelper
+import com.zaroslikov.myconstruction.project.MenuProjectFragment
 import java.text.SimpleDateFormat
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [AddProject.newInstance] factory method to
- * create an instance of this fragment.
- */
-class AddProject : Fragment() {
+class AddProjectFragment : Fragment() {
 
     private lateinit var myDB: MyDatabaseHelper
     private lateinit var nameProject: TextInputLayout
@@ -39,16 +30,17 @@ class AddProject : Fragment() {
     ): View? {
         myDB = MyDatabaseHelper(requireActivity())
         val layout = inflater.inflate(R.layout.fragment_add_project, container, false)
+
         val fab = requireActivity().findViewById<ExtendedFloatingActionButton>(R.id.extended_fab)
         fab.visibility = View.GONE
 
         val appBar = requireActivity().findViewById<MaterialToolbar>(R.id.topAppBar)
         appBar.title = "Добавить проект"
         appBar.setNavigationIcon(R.drawable.baseline_arrow_back_24)
-        appBar.menu.findItem(R.id.filler).setVisible(false)
-        appBar.menu.findItem(R.id.deleteAll).setVisible(false)
-        appBar.menu.findItem(R.id.moreAll).setVisible(true)
-        appBar.menu.findItem(R.id.magazine).setVisible(false)
+        appBar.menu.findItem(R.id.filler).isVisible = false
+        appBar.menu.findItem(R.id.deleteAll).isVisible = false
+        appBar.menu.findItem(R.id.moreAll).isVisible = true
+        appBar.menu.findItem(R.id.magazine).isVisible = false
         appBar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.moreAll -> {
@@ -66,8 +58,10 @@ class AddProject : Fragment() {
         nameProject = layout.findViewById(R.id.name_project)
         dateProject = layout.findViewById(R.id.date)
 
-        val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
-//        dateProject.editText?.text = "${calendar.get(Calendar.DAY_OF_MONTH)} . ${calendar.get(Calendar.MONTH+1)}. {"
+
+        // Настройка календаря
+        val calendar = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("UTC"))
+        dateProject.editText!!.setText(calendar[java.util.Calendar.DAY_OF_MONTH].toString() + "." + (calendar[java.util.Calendar.MONTH] + 1) + "." + calendar[java.util.Calendar.YEAR])
 
         val constraintsBuilder = CalendarConstraints.Builder()
             .setValidator(DateValidatorPointBackward.now())
@@ -98,7 +92,7 @@ class AddProject : Fragment() {
     }
 
 
-    fun addPrject() {
+    private fun addPrject() {
         val name = nameProject.editText?.text.toString()
         val date = dateProject.editText?.text.toString()
 
@@ -109,17 +103,17 @@ class AddProject : Fragment() {
                 name, date
             )
         ) {
-            if (name.equals("")){
+            if (name == ""){
                 nameProject.error = "Укажите имя проекта!"
                 nameProject.error
             }
-            if (date.equals("")){
+            if (date == ""){
                 dateProject.error = "Укажите дату!"
                 dateProject.error
             }
         }else{
             myDB.insertToDbProject(name,date,0)
-            replaceFragment(MenuProjectFragment)
+            replaceFragment(MenuProjectFragment())
         }
     }
 
