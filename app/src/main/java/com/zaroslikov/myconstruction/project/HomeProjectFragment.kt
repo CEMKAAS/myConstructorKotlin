@@ -16,7 +16,7 @@ import com.zaroslikov.myconstruction.WarehouseFragment
 import com.zaroslikov.myconstruction.db.MyDatabaseHelper
 
 
-class HomeProjectFragment : Fragment() {
+class HomeProjectFragment : Fragment(),AdapterProject.Listener {
 
     private lateinit var myDB: MyDatabaseHelper
     private var name = mutableListOf<String>()
@@ -44,22 +44,12 @@ class HomeProjectFragment : Fragment() {
 
         storeDataInArrays()
 
-        val adapterProject = AdapterProject(id, name, data, true)
+        val adapterProject = AdapterProject(id, name, data, true, this)
         recyclerView.adapter = adapterProject
         val layoutManager = GridLayoutManager(
             activity, 2
         )
         recyclerView.layoutManager = layoutManager
-
-
-        adapterProject.setListener(object : Listener() {
-            override fun onClick(position: Int, name: String?, data: String?, id: Int) {
-                inProject(position, name, data, id)
-                val mainActivity = MainActivity()
-                mainActivity.projectNumer = id
-            }
-        })
-
 
         return layout
     }
@@ -84,7 +74,7 @@ class HomeProjectFragment : Fragment() {
             .commit()
     }
 
-    fun inProject(name: String?, data: String?, id: Int) {
+    fun inProject(name: String, data: String, id: Int) {
         val warehouseFragment = WarehouseFragment()
         val bundle = Bundle()
         bundle.putString("name", name)
@@ -99,5 +89,11 @@ class HomeProjectFragment : Fragment() {
 
 
     companion object {
+    }
+
+    override fun onClick(position: Int, name: String, data: String, id: Int) {
+        inProject(name, data, id)
+        val mainActivity = MainActivity()
+        mainActivity.projectNumer = id
     }
 }

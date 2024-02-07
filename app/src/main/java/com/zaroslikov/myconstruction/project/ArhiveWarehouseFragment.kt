@@ -195,7 +195,7 @@ class ArhiveWarehouseFragment : Fragment() {
 
 
         for (product in productNameList) {
-            val cursorProduct: Cursor = myDB.selectProjectAllSumProductAndCount(idProject, product)
+            val cursorProduct = myDB.selectProjectAllSumProductAndCount(idProject, product)
             while (cursorProduct.moveToNext()) {
                 productSumList.add(
                     Product(

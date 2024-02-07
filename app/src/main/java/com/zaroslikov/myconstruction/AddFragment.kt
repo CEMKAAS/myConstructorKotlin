@@ -273,7 +273,7 @@ class AddFragment : Fragment() {
             cursorProduct.close()
 
             val cursorPP = myDB.seachPP(idProject, idProduct)
-           var idPP = if (cursorPP.count == 0) { // ToDO интересно
+            val idPP = if (cursorPP.count == 0) { // ToDO интересно
                 myDB.insertToDbProjectProduct(idProject, idProduct).toInt()
             } else {
                 cursorPP.moveToFirst()
@@ -329,6 +329,7 @@ class AddFragment : Fragment() {
             .addToBackStack(null)
             .commit()
     }
+
     companion object {
     }
 }

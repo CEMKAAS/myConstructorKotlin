@@ -9,11 +9,13 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
+import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.DateValidatorPointBackward
+import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.datepicker.MaterialDatePicker.Builder.datePicker
 import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -27,9 +29,9 @@ import java.util.TimeZone
 
 class UpdateProductFragment : Fragment() {
     lateinit var myDB: MyDatabaseHelper
-    var productNameList: List<String> = mutableListOf()
-    var categoryList: List<String> = mutableListOf()
-    val productList: List<Product> = mutableListOf()
+    var productNameList= mutableListOf<String>()
+    var categoryList = mutableListOf<String>()
+    val productList= mutableListOf<Product>()
 
     lateinit var productName: AutoCompleteTextView
     lateinit var add_edit: TextInputLayout
@@ -52,8 +54,8 @@ class UpdateProductFragment : Fragment() {
         var idProject = MainActivity().projectNumer
 
         val bundle = this.arguments
-        var productUpDate: Product
-        var nameMagazine: String
+        val productUpDate: Product
+        val nameMagazine: String
         if (bundle != null) {
             productUpDate = bundle.getParcelable("product")
             nameMagazine = bundle.getString("id").toString()
@@ -95,7 +97,7 @@ class UpdateProductFragment : Fragment() {
             .setValidator(DateValidatorPointBackward.now())
             .build()
 
-        var datePicker = datePicker()
+        val datePicker = datePicker()
             .setCalendarConstraints(constraintsBuilder)
             .setTitleText("Выберите дату")
             .setSelection(MaterialDatePicker.todayInUtcMilliseconds()) //Todo выбирать дату из EditText
@@ -129,7 +131,7 @@ class UpdateProductFragment : Fragment() {
         } else if (nameMagazine.equals("Мои Списания")) {
             //суффикс, цену и ввод имени убираем
             nowUnit.setText(
-                productUpDate.getName().toUpperCase() + " c ед. изм. " + productUpDate.getSuffix()
+                productUpDate.name.toUpperCase() + " c ед. изм. " + productUpDate.suffix
                     .toUpperCase()
             );
             suffixMenu.setVisibility(View.GONE);
@@ -140,7 +142,7 @@ class UpdateProductFragment : Fragment() {
         addDB(productUpDate.name, productUpDate.count, productUpDate.suffix)
 
         //Берем из бд товары и добавляем в список
-        addProduct()
+        addProduct(idProject)
 
         productName.onItemClickListener =
             AdapterView.OnItemClickListener { parent, view, position, id -> //Назначаем суффикс из продукта
@@ -154,7 +156,7 @@ class UpdateProductFragment : Fragment() {
             }
 
         //Кнопка обновления
-        val updateButton = layout.findViewById(R.id.update_button)
+        val updateButton = layout.findViewById<Button>(R.id.update_button)
         updateButton.setOnClickListener(View.OnClickListener {
             if (nameMagazine == "Мои Покупки") {
                 upDateProductADD()
@@ -164,7 +166,7 @@ class UpdateProductFragment : Fragment() {
         })
 
         //Кнопка удаления
-        val deleteButton = layout.findViewById(R.id.delete_button)
+        val deleteButton = layout.findViewById<Button>(R.id.delete_button)
         deleteButton.setOnClickListener(View.OnClickListener { deleteProduct() })
 
         return layout
@@ -173,7 +175,7 @@ class UpdateProductFragment : Fragment() {
 
 
     //Добавляем продукцию в список из БД
-    fun addProduct() {
+    fun addProduct(idProject:Int) {
         val cursor = myDB.readProduct()
         while (cursor.moveToNext()) {
             productNameList.add(cursor.getString(1))
@@ -254,7 +256,7 @@ class UpdateProductFragment : Fragment() {
             val cursorProduct = myDB.seachProductAndSuffix(name, suffix)
 
             //Если нет товара, то тогда
-            if (cursorProduct.getCount() === 0) {
+            if (cursorProduct.count === 0) {
                 cursorProduct.close()
                 val builder = MaterialAlertDialogBuilder(requireContext())
                 builder.setTitle(
@@ -262,8 +264,7 @@ class UpdateProductFragment : Fragment() {
                         Locale.getDefault()
                     ) + " нет!"
                 )
-                builder.setMessage(
-                    """Вы хотите ИЗМЕНИТЬ ВСЕ записи с ${
+                builder.setMessage("""Вы хотите ИЗМЕНИТЬ ВСЕ записи с ${
                         productUpDate.getName().toUpperCase()
                     } c ед.изм ${
                         productUpDate.getSuffix().toUpperCase()
@@ -367,7 +368,7 @@ class UpdateProductFragment : Fragment() {
         var productUnitAdd = 0.0
         var productUnitWriteOff = 0.0
         var suffixName: String? = null
-        if (cursor.getCount() !== 0) {
+        if (cursor.count !== 0) {
             cursor.moveToFirst()
             productName = cursor.getString(0)
             productUnitAdd = cursor.getDouble(1)
@@ -378,7 +379,7 @@ class UpdateProductFragment : Fragment() {
             idProject, name, MyConstanta.Constanta.TABLE_NAME_WRITEOFF,
             suffix
         )
-        if (cursorWriteOff != null && cursorWriteOff.getCount() !== 0) {
+        if (cursorWriteOff.getCount() !== 0) {
             cursorWriteOff.moveToFirst()
             productUnitWriteOff = cursorWriteOff.getDouble(1)
         }

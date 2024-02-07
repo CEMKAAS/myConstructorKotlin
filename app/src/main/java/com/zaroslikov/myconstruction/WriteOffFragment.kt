@@ -84,11 +84,7 @@ class WriteOffFragment : Fragment() {
         suffixMenu = layout.findViewById(R.id.suffix_menu)
         categoryMenu = layout.findViewById(R.id.category_menu)
 
-        addProduct()
-
-        // Настройка календаря
-
-
+        addProduct(idProject)
         // Настройка календаря
         val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
         date.editText!!.setText(calendar[Calendar.DAY_OF_MONTH].toString() + "." + (calendar[Calendar.MONTH] + 1) + "." + calendar[Calendar.YEAR])
@@ -107,7 +103,7 @@ class WriteOffFragment : Fragment() {
             datePicker.show(requireActivity().supportFragmentManager, "wer")
             datePicker.addOnPositiveButtonClickListener(MaterialPickerOnPositiveButtonClickListener<Any?> { selection ->
                 val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
-                calendar.timeInMillis = (selection as Long)!!
+                calendar.timeInMillis = (selection as Long)
                 val format = SimpleDateFormat("dd.MM.yyyy")
                 val formattedDate = format.format(calendar.time)
                 date.editText!!.setText(formattedDate)
@@ -124,18 +120,18 @@ class WriteOffFragment : Fragment() {
                 }
                 cursorProduct.close()
                 setArrayAdapter()
-                addDB(productClick, 0.0, suffixList.get(0))
+                addDB(productClick, 0.0, suffixList.get(0),idProject)
             }
 
         suffixSpiner.onItemClickListener =
             OnItemClickListener { parent, view, position, id ->
                 val productClick = productName.text.toString()
-                addDB(productClick, 0.0, suffixSpiner.text.toString())
+                addDB(productClick, 0.0, suffixSpiner.text.toString(), idProject)
             }
 
         val add = layout.findViewById<Button>(R.id.add_button)
         add.setOnClickListener {
-            addInDB()
+            addInDB(idProject)
             setArrayAdapter()
         }
 
@@ -144,7 +140,7 @@ class WriteOffFragment : Fragment() {
 
 
     //Добавляем продукцию в список
-    fun addProduct() {
+    private fun addProduct(idProject:Int) {
         val cursor = myDB.seachProductToProject(idProject)
 
         val categoryHashSet: MutableSet<String> = HashSet()
@@ -159,7 +155,7 @@ class WriteOffFragment : Fragment() {
         categoryList = categoryHashSet.toMutableList()
     }
 
-    fun addInDB() {
+    fun addInDB(idProject: Int) {
         add_edit.isErrorEnabled = false
         date.isErrorEnabled = false
         categoryMenu.isErrorEnabled = false
@@ -198,7 +194,7 @@ class WriteOffFragment : Fragment() {
                 .toDouble()
             val categoryProduct = category.text.toString()
             val dateProduct = date.editText!!.text.toString()
-            if (addDB(name, count, suffix)) {
+            if (addDB(name, count, suffix, idProject)) {
                 // проверяем продукт в БД
                 val cursorProduct = myDB.seachProductAndSuffix(name, suffix)
                 cursorProduct.moveToFirst()
@@ -222,16 +218,16 @@ class WriteOffFragment : Fragment() {
     }
 
     //Формируем список из БД
-    private fun addDB(product: String?, count: Double, suffixName: String?): Boolean {
+    private fun addDB(product: String, count: Double, suffixName: String, idProject: Int): Boolean {
         val cursor = myDB.selectProductJoin(
             idProject,
-            product!!, MyConstanta.Constanta.TABLE_NAME_ADD, suffixName!!
+            product, MyConstanta.Constanta.TABLE_NAME_ADD, suffixName
         )
         var productName: String? = null
         var productUnitAdd = 0.0
         var productUnitWriteOff = 0.0
         var suffix: String? = null
-        if (cursor != null && cursor.count != 0) {
+        if (cursor.count != 0) {
             cursor.moveToFirst()
             productName = cursor.getString(0)
             productUnitAdd = cursor.getDouble(1)
@@ -242,7 +238,7 @@ class WriteOffFragment : Fragment() {
             idProject,
             product, MyConstanta.Constanta.TABLE_NAME_WRITEOFF, suffixName
         )
-        if (cursorWriteOff != null && cursorWriteOff.count != 0) {
+        if (cursorWriteOff.count != 0) {
             cursorWriteOff.moveToFirst()
             productUnitWriteOff = cursorWriteOff.getDouble(1)
         }

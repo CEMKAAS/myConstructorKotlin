@@ -29,12 +29,10 @@ class MenuProjectFragment : Fragment() {
     ): View? {
        val layout = inflater.inflate(R.layout.fragment_menu_project, container, false)
         myDB = MyDatabaseHelper(requireContext())
-        //убириаем фаб кнопку
+
         //убириаем фаб кнопку
         val fab = requireActivity().findViewById<View>(R.id.extended_fab) as ExtendedFloatingActionButton
         fab.visibility = View.VISIBLE
-
-        //настройка верхнего меню
 
         //настройка верхнего меню
         val appBar = requireActivity().findViewById<MaterialToolbar>(R.id.topAppBar)
@@ -97,7 +95,7 @@ class MenuProjectFragment : Fragment() {
         builder.setPositiveButton(
             "Да"
         ) { dialogInterface, i -> //
-            myDB.deleteAllData()
+            myDB.deleteAllDate()
             replaceFragment(AddProjectFragment())
         }
         builder.setNegativeButton(

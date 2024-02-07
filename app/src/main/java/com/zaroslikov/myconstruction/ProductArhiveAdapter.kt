@@ -4,6 +4,7 @@ package com.zaroslikov.myconstruction
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
 
@@ -33,9 +34,9 @@ class ProductArhiveAdapter(private var productsList: List<Product>) :
 
     class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-        val products = itemView.findViewById(R.id.products_text)
-        val count = itemView.findViewById(R.id.count_text)
-        val unit = itemView.findViewById(R.id.unit_text)
-        val price = itemView.findViewById(R.id.price_txt)
+        val products = itemView.findViewById<TextView>(R.id.products_text)
+        val count = itemView.findViewById<TextView>(R.id.count_text)
+        val unit = itemView.findViewById<TextView>(R.id.unit_text)
+        val price = itemView.findViewById<TextView>(R.id.price_txt)
     }
 }

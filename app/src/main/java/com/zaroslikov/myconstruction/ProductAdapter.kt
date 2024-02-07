@@ -19,12 +19,12 @@ class ProductAdapter(var productsList:List<Product>, var fragment: Boolean): Rec
     override fun onBindViewHolder(holder: ProductAdapter.MyViewHolder, position: Int) {
 
         if (fragment){
-            holder.count.text  = productsList.get(position).price.toString()
+            holder.count.text  = productsList[position].price.toString()
        }else{
-            holder.count.text  = productsList.get(position).count.toString()
+            holder.count.text  = productsList[position].count.toString()
        }
-        holder.products.text = productsList.get(position).name
-        holder.unit.text = productsList.get(position).suffix
+        holder.products.text = productsList[position].name
+        holder.unit.text = productsList[position].suffix
     }
 
     override fun getItemCount(): Int {

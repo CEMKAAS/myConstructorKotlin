@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TableLayout
 import android.widget.TableRow
 import android.widget.TextView
@@ -54,19 +55,23 @@ class WarehouseFragment : Fragment() {
         }
         appBar.setNavigationOnClickListener { replaceFragment(MenuProjectFragment()) }
 
+        val nameProject :String
+        val dateProject : String
+        var idProject=0
+
         val bundle = this.arguments
         if (bundle != null) {
-            nameProject = bundle.getString("name")
-            dateProject = bundle.getString("date")
+            nameProject = bundle.getString("name").toString()
+            dateProject = bundle.getString("date").toString()
             idProject = bundle.getInt("id")
         }
 
-        var idProject = MainActivity().projectNumer
+//        val idProject = MainActivity().projectNumer
 
-        add()
+        add(idProject)
         onBackPressed()
 
-        val add = layout.findViewById(R.id.end_button)
+        val add = layout.findViewById<Button>(R.id.end_button)
         add.setOnClickListener(View.OnClickListener {
             val builder = MaterialAlertDialogBuilder(requireContext())
             builder.setTitle("Завершить проект?")
@@ -91,7 +96,7 @@ class WarehouseFragment : Fragment() {
         return layout
     }
     //Формируем список из БД
-    fun add() {
+    fun add(idProject:Int) {
         val cursor = myDB.selectProjectAllProductAndCategoryAdd(idProject)
         while (cursor.moveToNext()) {
             productAllList.add(Product(0, cursor.getString(0), cursor.getString(1)))

@@ -17,9 +17,9 @@ class AdapterProject(
     var id: List<Int>,
     var name: List<String>,
     private var data: List<String>,
-    var fragment: Boolean
+    var fragment: Boolean, var listener: Listener
 ) :
-    RecyclerView.Adapter<AdapterProject.ViewHolder>(), Listener {
+    RecyclerView.Adapter<AdapterProject.ViewHolder>() {
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AdapterProject.ViewHolder {
@@ -90,12 +90,10 @@ class AdapterProject(
         textView1.text = textCard //Какой день
 
         cardView.setOnClickListener {
-            onClick(
-                position,
+            listener.onClick(position,
                 name[position],
                 data[position],
-                id[position]
-            )
+                id[position])
         }
     }
 
@@ -108,12 +106,9 @@ class AdapterProject(
         cardView
     )
 
-    override fun onClick(position: Int, name: String?, data: String?, id: Int) {
-
+    interface Listener {
+        fun onClick(position: Int, name: String, data: String, id: Int)
     }
 
 }
 
-interface Listener {
-    fun onClick(position: Int, name: String?, data: String?, id: Int)
-}

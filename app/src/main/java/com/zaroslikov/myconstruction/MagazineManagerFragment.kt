@@ -366,7 +366,7 @@ class MagazineManagerFragment : Fragment() {
         categorySpinerSheet.setAdapter<ArrayAdapter<String>>(arrayAdapterCategory)
     }
 
-    private fun addChart(product: Product?) {
+    private fun addChart(product: Product, appBarManager: String) {
         val updateProductFragment = UpdateProductFragment()
         val bundle = Bundle()
         bundle.putParcelable("product", product)

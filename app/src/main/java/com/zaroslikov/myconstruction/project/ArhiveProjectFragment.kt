@@ -12,7 +12,7 @@ import com.zaroslikov.myconstruction.MainActivity
 import com.zaroslikov.myconstruction.R
 import com.zaroslikov.myconstruction.db.MyDatabaseHelper
 
-class ArhiveProjectFragment : Fragment() {
+class ArhiveProjectFragment : Fragment(), AdapterProject.Listener {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var myDB: MyDatabaseHelper
@@ -30,20 +30,12 @@ class ArhiveProjectFragment : Fragment() {
 
         storeDataInArrays()
 
-        val adapterProject = AdapterProject(id, name, data, false)
+        val adapterProject = AdapterProject(id, name, data, false,this)
         recyclerView.adapter = adapterProject
         val layoutManager = GridLayoutManager(
             activity, 2
         )
         recyclerView.layoutManager = layoutManager
-
-//        adapterProject.onClick(object : Listener() {
-//            override fun onClick(position: Int, name: String?, data: String?, id: Int) {
-//                inProject(name, data)
-//                val mainActivity = MainActivity()
-//                mainActivity.projectNumer = id
-//            }
-//        })
 
         return layout
     }
@@ -66,7 +58,7 @@ class ArhiveProjectFragment : Fragment() {
         cursor.close()
     }
 
-    fun inProject(name: String?, data: String?) {
+    fun inProject(name: String, data: String) {
         val warehouseFragment = ArhiveWarehouseFragment()
         val bundle = Bundle()
         bundle.putString("name", name)
@@ -76,5 +68,11 @@ class ArhiveProjectFragment : Fragment() {
             .replace(R.id.conteiner, warehouseFragment, "visible_fragment")
             .addToBackStack(null)
             .commit()
+    }
+
+    override fun onClick(position: Int, name: String, data: String, id: Int) {
+        inProject(name, data)
+        val mainActivity = MainActivity()
+        mainActivity.projectNumer = id
     }
 }
