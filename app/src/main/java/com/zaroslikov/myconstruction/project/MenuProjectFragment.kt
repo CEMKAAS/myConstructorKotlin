@@ -28,7 +28,7 @@ class MenuProjectFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
        val layout = inflater.inflate(R.layout.fragment_menu_project, container, false)
-        myDB = MyDatabaseHelper(requireContext())
+        myDB = MyDatabaseHelper(requireActivity())
 
         //убириаем фаб кнопку
         val fab = requireActivity().findViewById<View>(R.id.extended_fab) as ExtendedFloatingActionButton
@@ -56,9 +56,7 @@ class MenuProjectFragment : Fragment() {
 
         val tabLayout = layout.findViewById<TabLayout>(R.id.tab)
         val viewPager2 = layout.findViewById<ViewPager2>(R.id.view_pager)
-        val menuAdapter = MenuAdapter(
-            requireActivity()
-        )
+        val menuAdapter = MenuAdapter(requireActivity())
         viewPager2.adapter = menuAdapter
 
         tabLayout.addOnTabSelectedListener(object : OnTabSelectedListener {
@@ -80,9 +78,9 @@ class MenuProjectFragment : Fragment() {
         return layout
     }
 
-    private fun replaceFragment(fragment: Fragment?) {
+    private fun replaceFragment(fragment: Fragment) {
         requireActivity().supportFragmentManager.beginTransaction()
-            .replace(R.id.conteiner, fragment!!, "visible_fragment")
+            .replace(R.id.conteiner, fragment, "visible_fragment")
             .addToBackStack(null)
             .commit()
     }

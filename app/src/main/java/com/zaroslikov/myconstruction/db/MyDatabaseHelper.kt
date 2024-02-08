@@ -36,11 +36,11 @@ class MyDatabaseHelper(context: Context) : SQLiteOpenHelper(
             "Upgrading database from version " + p1 + " to "
                     + p2 + ", which will destroy all old data"
         )
-        p0.execSQL("DROP TABLE IF EXISTS MyConstanta.DROP_TABLE_PROJECT")
-        p0.execSQL("DROP TABLE IF EXISTS MyConstanta.DROP_TABLE_PRODUCT")
-        p0.execSQL("DROP TABLE IF EXISTS MyConstanta.DROP_TABLE_PRODUCTPROJECT")
-        p0.execSQL("DROP TABLE IF EXISTS  MyConstanta.DROP_TABLE_ADD")
-        p0.execSQL("DROP TABLE IF EXISTS MyConstanta.DROP_TABLE_WRITEOFF")
+        p0.execSQL("DROP TABLE IF EXISTS $MyConstanta.DROP_TABLE_PROJECT")
+        p0.execSQL("DROP TABLE IF EXISTS $MyConstanta.DROP_TABLE_PRODUCT")
+        p0.execSQL("DROP TABLE IF EXISTS $MyConstanta.DROP_TABLE_PRODUCTPROJECT")
+        p0.execSQL("DROP TABLE IF EXISTS $MyConstanta.DROP_TABLE_ADD")
+        p0.execSQL("DROP TABLE IF EXISTS $MyConstanta.DROP_TABLE_WRITEOFF")
         onCreate(p0)
     }
 
@@ -90,7 +90,7 @@ class MyDatabaseHelper(context: Context) : SQLiteOpenHelper(
                     " JOIN ${MyConstanta.Constanta.TABLE_NAME} + proj" +
                     " ON proj.${BaseColumns._ID} = pp.${MyConstanta.Constanta.IDPROJECT}" +
 
-                    " WHERE proj.${BaseColumns._ID} = ? and ${MyConstanta.Constanta.TITLEPRODUCT} = ? and ${MyConstanta.Constanta.SUFFIX} =?" +
+                    " WHERE proj.${BaseColumns._ID} =? and ${MyConstanta.Constanta.TITLEPRODUCT} =? and ${MyConstanta.Constanta.SUFFIX} =?" +
                     " group by ${MyConstanta.Constanta.TITLEPRODUCT}, ${MyConstanta.Constanta.SUFFIX}",
             arrayOf(propertyId.toString(), productName, suffix)
         )
@@ -139,7 +139,7 @@ class MyDatabaseHelper(context: Context) : SQLiteOpenHelper(
         val db = this.readableDatabase
         return db.rawQuery(
             "SELECT ${MyConstanta.Constanta.TITLEPRODUCT}, " +
-                    "${MyConstanta.Constanta.SUFFIX}, sum(${MyConstanta.Constanta.PRICE}), ${MyConstanta.Constanta.DATE} " +
+                    "${MyConstanta.Constanta.SUFFIX}, sum(${MyConstanta.Constanta.PRICE}), ${MyConstanta.Constanta.DATE}" +
                     " FROM ${MyConstanta.Constanta.TABLE_NAME_ADD} ad" +
                     " JOIN ${MyConstanta.Constanta.TABLE_NAME_PROJECT_PRODUCT} pp" +
                     " ON pp.${BaseColumns._ID} = ad.${MyConstanta.Constanta.IDPP}" +
@@ -160,9 +160,9 @@ class MyDatabaseHelper(context: Context) : SQLiteOpenHelper(
         return db.rawQuery(
             "SELECT ${MyConstanta.Constanta.TITLEPRODUCT}, ${MyConstanta.Constanta.SUFFIX}, sum(${MyConstanta.Constanta.PRICE})," +
                     " ${MyConstanta.Constanta.DATE}, sum(${MyConstanta.Constanta.QUANTITY})" +
-                    " FROM ${MyConstanta.Constanta.TABLE_NAME_ADD} ad " +
-                    " JOIN ${MyConstanta.Constanta.TABLE_NAME_PROJECT_PRODUCT} pp " +
-                    " ON pp.${BaseColumns._ID} = ad.${MyConstanta.Constanta.IDPP} " +
+                    " FROM ${MyConstanta.Constanta.TABLE_NAME_ADD} ad" +
+                    " JOIN ${MyConstanta.Constanta.TABLE_NAME_PROJECT_PRODUCT} pp" +
+                    " ON pp.${BaseColumns._ID} = ad.${MyConstanta.Constanta.IDPP}" +
 
                     " JOIN ${MyConstanta.Constanta.TABLE_NAME_PRODUCT} prod" +
                     " ON prod.${BaseColumns._ID} = pp.${MyConstanta.Constanta.IDPRODUCT}" +
@@ -186,8 +186,8 @@ class MyDatabaseHelper(context: Context) : SQLiteOpenHelper(
                     " JOIN ${MyConstanta.Constanta.TABLE_NAME_PRODUCT} prod ON" +
                     " prod.${BaseColumns._ID} = pp.${MyConstanta.Constanta.IDPRODUCT}" +
 
-                    " JOIN ${MyConstanta.Constanta.TABLE_NAME} proj " +
-                    "ON proj.${BaseColumns._ID} = pp.${MyConstanta.Constanta.IDPROJECT}" +
+                    " JOIN ${MyConstanta.Constanta.TABLE_NAME} proj" +
+                    " ON proj.${BaseColumns._ID} = pp.${MyConstanta.Constanta.IDPROJECT}" +
 
                     " WHERE proj.${BaseColumns._ID} = ?" +
                     " group by ${MyConstanta.Constanta.TITLEPRODUCT}, ${MyConstanta.Constanta.SUFFIX}",
@@ -239,7 +239,7 @@ class MyDatabaseHelper(context: Context) : SQLiteOpenHelper(
     fun seachProductToProject(idProject: Int): Cursor {
         val db = this.readableDatabase
         return db.rawQuery(
-            "SELECT ${MyConstanta.Constanta.TITLEPRODUCT},${MyConstanta.Constanta.CATEGORY}" +
+            "SELECT ${MyConstanta.Constanta.TITLEPRODUCT}, ${MyConstanta.Constanta.CATEGORY}" +
                     " FROM ${MyConstanta.Constanta.TABLE_NAME_ADD} ad" +
                     " JOIN ${MyConstanta.Constanta.TABLE_NAME_PROJECT_PRODUCT} pp" +
                     " ON pp.${BaseColumns._ID} = ad.${MyConstanta.Constanta.IDPP}" +
@@ -258,11 +258,12 @@ class MyDatabaseHelper(context: Context) : SQLiteOpenHelper(
     fun readAddMagazine(idProject: Int): Cursor {
         val db = this.readableDatabase
         return db.rawQuery(
-            "SELECT ad.${BaseColumns._ID}, ${MyConstanta.Constanta.TITLEPRODUCT}, ${MyConstanta.Constanta.CATEGORY}, ${MyConstanta.Constanta.QUANTITY}, ${MyConstanta.Constanta.PRICE}, ${MyConstanta.Constanta.DATE}, ${MyConstanta.Constanta.SUFFIX}" +
+            "SELECT ad.${BaseColumns._ID}, ${MyConstanta.Constanta.TITLEPRODUCT}, ${MyConstanta.Constanta.CATEGORY}, ${MyConstanta.Constanta.QUANTITY}," +
+                    " ${MyConstanta.Constanta.PRICE}, ${MyConstanta.Constanta.DATE}, ${MyConstanta.Constanta.SUFFIX}" +
                     " FROM ${MyConstanta.Constanta.TABLE_NAME_ADD} ad" +
 
                     " JOIN ${MyConstanta.Constanta.TABLE_NAME_PROJECT_PRODUCT} pp" +
-                    " ON pp. ${BaseColumns._ID} =ad. ${MyConstanta.Constanta.IDPP}" +
+                    " ON pp.${BaseColumns._ID} = ad.${MyConstanta.Constanta.IDPP}" +
 
                     " JOIN ${MyConstanta.Constanta.TABLE_NAME_PRODUCT} prod" +
                     " ON prod.${BaseColumns._ID} = pp.${MyConstanta.Constanta.IDPRODUCT}" +
@@ -276,11 +277,12 @@ class MyDatabaseHelper(context: Context) : SQLiteOpenHelper(
     fun readWriteOffMagazine(idProject: Int): Cursor {
         val db = this.readableDatabase
         return db.rawQuery(
-            "SELECT ad.${BaseColumns._ID}, ${MyConstanta.Constanta.TITLEPRODUCT}, ${MyConstanta.Constanta.CATEGORY}, ${MyConstanta.Constanta.QUANTITY}, ${MyConstanta.Constanta.PRICE}, ${MyConstanta.Constanta.SUFFIX}" +
+            "SELECT ad.${BaseColumns._ID}, ${MyConstanta.Constanta.TITLEPRODUCT}, ${MyConstanta.Constanta.CATEGORY}," +
+                    " ${MyConstanta.Constanta.QUANTITY}, ${MyConstanta.Constanta.PRICE}, ${MyConstanta.Constanta.SUFFIX}" +
                     " FROM ${MyConstanta.Constanta.TABLE_NAME_WRITEOFF} ad" +
 
                     " JOIN ${MyConstanta.Constanta.TABLE_NAME_PROJECT_PRODUCT} pp" +
-                    " ON pp. ${BaseColumns._ID} =ad. ${MyConstanta.Constanta.IDPP}" +
+                    " ON pp.${BaseColumns._ID} = ad.${MyConstanta.Constanta.IDPP}" +
 
                     " JOIN ${MyConstanta.Constanta.TABLE_NAME_PRODUCT} prod" +
                     " ON prod.${BaseColumns._ID} = pp.${MyConstanta.Constanta.IDPRODUCT}" +
@@ -294,8 +296,8 @@ class MyDatabaseHelper(context: Context) : SQLiteOpenHelper(
     fun seachAdd(count: Double, category: String, price: Double, date: String, idPP: Int): Cursor {
         val db = this.readableDatabase
         return db.rawQuery(
-            "SELECT * FROM ${MyConstanta.Constanta.TABLE_NAME_ADD} " +
-                    "Where ${MyConstanta.Constanta.QUANTITY} =?" +
+            "SELECT * FROM ${MyConstanta.Constanta.TABLE_NAME_ADD}" +
+                    " Where ${MyConstanta.Constanta.QUANTITY} =?" +
                     " and ${MyConstanta.Constanta.CATEGORY} =?" +
                     " and ${MyConstanta.Constanta.PRICE} =?" +
                     " and ${MyConstanta.Constanta.DATE} =? " +
@@ -307,12 +309,12 @@ class MyDatabaseHelper(context: Context) : SQLiteOpenHelper(
     fun seachWriteOff(count: Double, category: String, date: String, idPP: Int): Cursor {
         val db = this.readableDatabase
         return db.rawQuery(
-            "SELECT * FROM ${MyConstanta.Constanta.TABLE_NAME_ADD} " +
-                    "Where ${MyConstanta.Constanta.QUANTITY} =?" +
+            "SELECT * FROM ${MyConstanta.Constanta.TABLE_NAME_ADD}" +
+                    " Where ${MyConstanta.Constanta.QUANTITY} =?" +
                     " and ${MyConstanta.Constanta.CATEGORY} =?" +
                     " and ${MyConstanta.Constanta.PRICE} =?" +
-                    " and ${MyConstanta.Constanta.DATE} =? " +
-                    "and ${MyConstanta.Constanta.IDPP} =?",
+                    " and ${MyConstanta.Constanta.DATE} =?" +
+                    " and ${MyConstanta.Constanta.IDPP} =?",
             arrayOf(count.toString(), category, date, idPP.toString())
         )
     }
@@ -326,7 +328,7 @@ class MyDatabaseHelper(context: Context) : SQLiteOpenHelper(
         cv.put(MyConstanta.Constanta.DATEFINALPROJECT, date)
         cv.put(MyConstanta.Constanta.PICTUREROJECT, 0)
         cv.put(MyConstanta.Constanta.STATUSPROJECT, status)
-        db.insert(MyConstanta.Constanta.TABLE_NAME_ADD, null, cv)
+        db.insert(MyConstanta.Constanta.TABLE_NAME, null, cv)
     }
 
     fun insertToDbProduct(name: String, suffix: String): Long {

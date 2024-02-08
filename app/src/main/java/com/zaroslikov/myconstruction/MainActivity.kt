@@ -21,9 +21,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
         binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         myDB = MyDatabaseHelper(this)
 
@@ -40,22 +39,25 @@ class MainActivity : AppCompatActivity() {
         }
 
         set()
-        binding.navView.visibility = View.GONE
-        binding.navView.setOnItemSelectedListener { item : MenuItem ->
-            when(item.itemId){
+
+        binding.navView.setOnItemSelectedListener { item: MenuItem ->
+            when (item.itemId) {
                 R.id.warehouse_button -> {
                     replaceFragment(WarehouseFragment())
                     appBar.title = "Мой Склад"
                     fab.hide()
                     fab.visibility = View.GONE
                 }
-                R.id.add_button ->{
+
+                R.id.add_button -> {
                     replaceFragment(AddFragment())
                 }
-                R.id.writeOff_button ->{
+
+                R.id.writeOff_button -> {
                     replaceFragment(WriteOffFragment())
                 }
-                R.id.finance_button ->{
+
+                R.id.finance_button -> {
                     replaceFragment(FinanceFragment())
                 }
             }
@@ -97,7 +99,9 @@ class MainActivity : AppCompatActivity() {
 
         when (cursor.count) {
             0 -> {
+                binding.navView.visibility = View.INVISIBLE
                 replaceFragment(AddProjectFragment())
+
             }
 
             1 -> {
@@ -118,7 +122,7 @@ class MainActivity : AppCompatActivity() {
     fun replaceFragment(fragment: Fragment) {
         supportFragmentManager
             .beginTransaction()
-            .replace(R.id.container,fragment)
+            .replace(R.id.container, fragment)
             .commit()
 
     }

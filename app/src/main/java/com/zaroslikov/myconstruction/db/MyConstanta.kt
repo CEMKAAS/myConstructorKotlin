@@ -67,8 +67,8 @@ object MyConstanta {
                 "${Constanta.SUFFIX} TEXT)"
 
     const val TABLE_STRUCTURE_PRODUCTPROJECT =
-        "CREATE TABLE IF NOT EXISTS ${Constanta.TABLE_NAME_PROJECT_PRODUCT} +" +
-                " ( ${BaseColumns._ID} INTEGER PRIMARY KEY, " +
+        "CREATE TABLE IF NOT EXISTS ${Constanta.TABLE_NAME_PROJECT_PRODUCT}" +
+                " (${BaseColumns._ID} INTEGER PRIMARY KEY, " +
                 "${Constanta.IDPROJECT} INTEGER, " +
                 "${Constanta.IDPRODUCT} INTEGER, " +
                 "FOREIGN KEY (${Constanta.IDPROJECT}) REFERENCES ${Constanta.TABLE_NAME} (${BaseColumns._ID}), FOREIGN KEY (${Constanta.IDPRODUCT}) REFERENCES ${Constanta.TABLE_NAME_PRODUCT} (${BaseColumns._ID}))"
