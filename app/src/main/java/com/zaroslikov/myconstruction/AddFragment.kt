@@ -122,8 +122,8 @@ class AddFragment : Fragment() {
         }
 
         productName.setOnItemClickListener { adapterView, view, i, l ->
-            val productClick = productList[i].name
-            val suffixClick = productList[i].suffix
+            val productClick = productList[i].name.toString()
+            val suffixClick = productList[i].suffix.toString()
 
             if (suffixSpiner.text.toString() == "") {
                 addDB(productClick, suffixClick, idProject)

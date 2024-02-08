@@ -222,14 +222,14 @@ class MagazineManagerFragment : Fragment(), CustomAdapterMagazine.Listener {
         products.add(
             Product(
                 cursor.getInt(0), cursor.getString(1), cursor.getString(2),
-                cursor.getDouble(3), 0, cursor.getString(4), cursor.getString(5)
+                cursor.getDouble(3), 0.0, cursor.getString(4), cursor.getString(5)
             )
         )
         while (cursor.moveToPrevious()) {
             products.add(
                 Product(
                     cursor.getInt(0), cursor.getString(1), cursor.getString(2),
-                    cursor.getDouble(3), 0, cursor.getString(4), cursor.getString(5)
+                    cursor.getDouble(3), 0.0, cursor.getString(4), cursor.getString(5)
                 )
             )
         }
@@ -243,8 +243,8 @@ class MagazineManagerFragment : Fragment(), CustomAdapterMagazine.Listener {
         val productHashSet: MutableSet<String> = HashSet()
 
         for (product in products) {
-            productHashSet.add(product.name)
-            categoryHashSet.add(product.category)
+            productHashSet.add(product.name.toString())
+            categoryHashSet.add(product.category.toString())
         }
 
         productNameList = productHashSet.toMutableList()

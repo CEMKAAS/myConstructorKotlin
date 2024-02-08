@@ -24,6 +24,7 @@ import java.util.TimeZone
 class WarehouseFragment : Fragment() {
 
     lateinit var myDB : MyDatabaseHelper
+    lateinit var layout: View
 
     var productAllList = mutableListOf<Product>()
     var productList = mutableListOf<Product>()
@@ -32,7 +33,7 @@ class WarehouseFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val layout = inflater.inflate(R.layout.fragment_warehouse, container, false)
+        layout = inflater.inflate(R.layout.fragment_warehouse, container, false)
         myDB = MyDatabaseHelper(requireContext())
 
         val fab = requireActivity().findViewById<ExtendedFloatingActionButton>(R.id.extended_fab)
@@ -107,9 +108,9 @@ class WarehouseFragment : Fragment() {
             var suffix: String? = null
             val cursorAdd = myDB.selectProductJoin(
                 idProject,
-                product.name,
+                product.name.toString(),
                 MyConstanta.Constanta.TABLE_NAME_ADD,
-                product.suffix
+                product.suffix.toString()
             )
             if (cursorAdd.count !== 0) {
                 cursorAdd.moveToFirst()
@@ -120,9 +121,9 @@ class WarehouseFragment : Fragment() {
             cursor.close()
             val cursorWriteOff = myDB.selectProductJoin(
                 idProject,
-                product.name,
+                product.name.toString(),
                 MyConstanta.Constanta.TABLE_NAME_WRITEOFF,
-                product.suffix
+                product.suffix.toString()
             )
             if (cursorWriteOff.count !== 0) {
                 cursorWriteOff.moveToFirst()

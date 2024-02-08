@@ -12,6 +12,7 @@ import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.fragment.app.setFragmentResultListener
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.DateValidatorPointBackward
@@ -44,6 +45,7 @@ class UpdateProductFragment : Fragment() {
     lateinit var productNameMenu: TextInputLayout
     lateinit var suffixMenu: TextInputLayout
     lateinit var categoryMenu: TextInputLayout
+    lateinit var productUpDate: Product
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -54,12 +56,13 @@ class UpdateProductFragment : Fragment() {
         val idProject = MainActivity().projectNumer
 
         val bundle = this.arguments
-        val productUpDate: Product
-        val nameMagazine: String?
-        if (bundle != null) {
-            productUpDate = bundle.getParcelable("product")
+        var nameMagazine ="  "
+
+        if (bundle!=null){
+            productUpDate = bundleProduct(bundle)!!
             nameMagazine = bundle.getString("id").toString()
         }
+
 
         //Подключаем фронт
         productName = layout.findViewById<AutoCompleteTextView>(R.id.productName_editText)
@@ -117,7 +120,7 @@ class UpdateProductFragment : Fragment() {
         //Назначае каждой строке
 
         //Назначае каждой строке
-        productName.setText(productUpDate.name)
+        productName.setText(productUpDate.name.toString())
         add_edit.editText!!.setText(productUpDate.count.toString())
         suffixSpiner.setText(productUpDate.suffix, false)
         price_edit.editText!!.setText(productUpDate.price.toString())
@@ -131,15 +134,15 @@ class UpdateProductFragment : Fragment() {
         } else if (nameMagazine.equals("Мои Списания")) {
             //суффикс, цену и ввод имени убираем
             nowUnit.setText(
-                productUpDate.name.toUpperCase() + " c ед. изм. " + productUpDate.suffix
-                    .toUpperCase()
+                productUpDate.name?.toUpperCase() + " c ед. изм. " + productUpDate.suffix
+                    ?.toUpperCase()
             );
             suffixMenu.setVisibility(View.GONE);
             productNameMenu.setVisibility(View.GONE);
             price_edit.setVisibility(View.GONE);
         }
 
-        addDB(productUpDate.name, productUpDate.count, productUpDate.suffix)
+        addDB(productUpDate.name.toString(), productUpDate.count, productUpDate.suffix.toString(), idProject, productUpDate, nameMagazine)
 
         //Берем из бд товары и добавляем в список
         addProduct(idProject)
@@ -159,20 +162,24 @@ class UpdateProductFragment : Fragment() {
         val updateButton = layout.findViewById<Button>(R.id.update_button)
         updateButton.setOnClickListener(View.OnClickListener {
             if (nameMagazine == "Мои Покупки") {
-                upDateProductADD()
+                upDateProductADD(idProject, productUpDate, nameMagazine)
             } else if (nameMagazine == "Мои Списания") {
-                upDateProductWriteOff()
+                upDateProductWriteOff(idProject, productUpDate, nameMagazine)
             }
         })
 
         //Кнопка удаления
         val deleteButton = layout.findViewById<Button>(R.id.delete_button)
-        deleteButton.setOnClickListener(View.OnClickListener { deleteProduct() })
+        deleteButton.setOnClickListener(View.OnClickListener { deleteProduct(productUpDate,
+            nameMagazine.toString()
+        ) })
 
         return layout
     }
 
-
+fun bundleProduct(bundle: Bundle): Product? {
+    return bundle.getParcelable<Product>("product")
+}
 
     //Добавляем продукцию в список из БД
     fun addProduct(idProject:Int) {
@@ -196,7 +203,7 @@ class UpdateProductFragment : Fragment() {
     }
 
 
-    fun upDateProductADD() {
+    fun upDateProductADD(idProject: Int, productUpDate:Product, nameMagazine: String) {
         //Очищаем ошибки
         add_edit.isErrorEnabled = false
         date.isErrorEnabled = false
@@ -265,9 +272,9 @@ class UpdateProductFragment : Fragment() {
                     ) + " нет!"
                 )
                 builder.setMessage("""Вы хотите ИЗМЕНИТЬ ВСЕ записи с ${
-                        productUpDate.getName().toUpperCase()
+                    productUpDate.name?.toUpperCase()
                     } c ед.изм ${
-                        productUpDate.getSuffix().toUpperCase()
+                    productUpDate.suffix?.toUpperCase()
                     } на ${name.uppercase(Locale.getDefault())} c ед.изм ${
                         suffix.uppercase(
                             Locale.getDefault()
@@ -285,20 +292,20 @@ class UpdateProductFragment : Fragment() {
                     Toast.makeText(activity, "Вы добавили товар ", Toast.LENGTH_SHORT).show()
                     idProduct[0] = Math.toIntExact(myDB.insertToDbProduct(name, suffix))
                     productNameList.add(name)
-                    cursorUpdate(idProduct, idPP, count, categoryProduct, price, dateProduct)
+                    cursorUpdate(idProduct, idPP, count, categoryProduct, price, dateProduct, idProject, productUpDate, nameMagazine)
                 }
                 builder.setNegativeButton(
                     "Изменить"
                 ) { dialogInterface, i ->
                     idProduct[0] = Math.toIntExact(
                         myDB.updateToDbProduct(
-                            productUpDate.getName(),
+                            productUpDate.name.toString(),
                             name,
                             suffix
                         )
                     )
-                    if (addDB(productUpDate.getName(), count, productUpDate.getSuffix())) {
-                        cursorUpdate(idProduct, idPP, count, categoryProduct, price, dateProduct)
+                    if (addDB(productUpDate.name.toString(), count, productUpDate.suffix.toString(), idProject, productUpDate, nameMagazine)) {
+                        cursorUpdate(idProduct, idPP, count, categoryProduct, price, dateProduct, idProject, productUpDate, nameMagazine)
                     }
                 }
                 builder.setNeutralButton(
@@ -309,15 +316,15 @@ class UpdateProductFragment : Fragment() {
                 cursorProduct.moveToFirst()
                 idProduct[0] = cursorProduct.getInt(0)
                 cursorProduct.close()
-                if (addDB(name, count, suffix)) {
-                    cursorUpdate(idProduct, idPP, count, categoryProduct, price, dateProduct)
+                if (addDB(name, count, suffix, idProject, productUpDate, nameMagazine)) {
+                    cursorUpdate(idProduct, idPP, count, categoryProduct, price, dateProduct, idProject, productUpDate, nameMagazine)
                 }
             }
         }
     }
 
     //Обновляем Списание
-    private fun upDateProductWriteOff() {
+    private fun upDateProductWriteOff(idProject: Int, productUpDate: Product, nameMagazine: String) {
         add_edit.isErrorEnabled = false
         date.isErrorEnabled = false
         categoryMenu.isErrorEnabled = false
@@ -348,21 +355,23 @@ class UpdateProductFragment : Fragment() {
             val idPP = 0
 
             // проверяем продукт в БД
-            val cursorProduct = myDB.seachProductAndSuffix(productUpDate.getName(), productUpDate.getSuffix())
+            val cursorProduct = myDB.seachProductAndSuffix(productUpDate.name.toString(),
+                productUpDate.suffix.toString()
+            )
             cursorProduct.moveToFirst()
             idProduct[0] = cursorProduct.getInt(0)
             cursorProduct.close()
-            if (addDB(productUpDate.getName(), count, productUpDate.getSuffix())) {
-                cursorUpdate(idProduct, idPP, count, categoryProduct, 0, dateProduct)
+            if (addDB(productUpDate.name.toString(), count, productUpDate.suffix.toString(), idProject, productUpDate, nameMagazine)) {
+                cursorUpdate(idProduct, idPP, count, categoryProduct, 0.0, dateProduct, idProject, productUpDate, nameMagazine)
             }
         }
     }
 
     //Проверяем уходим ли в минус или нет
-    private fun addDB(name: String, count: Double, suffix: String, idProject: Int): Boolean {
+    private fun addDB(name: String, count: Double, suffix: String, idProject: Int, productUpDate: Product, nameMagazine:String): Boolean {
         val cursor = myDB.selectProductJoin(
             idProject, name, MyConstanta.Constanta.TABLE_NAME_ADD,
-            suffix!!
+            suffix
         )
         var productName: String? = null
         var productUnitAdd = 0.0
@@ -384,7 +393,7 @@ class UpdateProductFragment : Fragment() {
             productUnitWriteOff = cursorWriteOff.getDouble(1)
         }
         cursorWriteOff.close()
-        val diff: Double = productUpDate.getCount() - count
+        val diff: Double = productUpDate.count - count
         var nowUnitProduct = 0.0
         val wareHouseUnitProduct = productUnitAdd - productUnitWriteOff
         if (nameMagazine.equals("Мои Покупки")) {
@@ -408,7 +417,7 @@ class UpdateProductFragment : Fragment() {
 
     fun cursorUpdate(
         idProduct: IntArray, idPP: Int, count: Double, categoryProduct: String,
-        price: Double, dateProduct: String, idProject: Int
+        price: Double, dateProduct: String, idProject: Int, productUpDate: Product, nameMagazine: String
     ) {
 
         //проверяем связку продукт архив
@@ -428,7 +437,7 @@ class UpdateProductFragment : Fragment() {
                 price,
                 dateProduct,
                 idPP,
-                productUpDate.getId()
+                productUpDate.id
             )
         } else if (nameMagazine.equals("Мои Списания")) {
             myDB.updateToDbWriteOff(
@@ -436,7 +445,7 @@ class UpdateProductFragment : Fragment() {
                 categoryProduct,
                 dateProduct,
                 idPP,
-                productUpDate.getId()
+                productUpDate.id
             )
         }
         Toast.makeText(activity, "Обновленно", Toast.LENGTH_LONG).show()
@@ -446,11 +455,11 @@ class UpdateProductFragment : Fragment() {
         }
     }
 
-    private fun deleteProduct() {
+    private fun deleteProduct(productUpDate: Product, nameMagazine: String) {
         if (nameMagazine.equals("Мои Покупки")) {
-            myDB.deleteOneRowAdd(productUpDate.getId(), MyConstanta.Constanta.TABLE_NAME_ADD)
+            myDB.deleteOneRowAdd(productUpDate.id, MyConstanta.Constanta.TABLE_NAME_ADD)
         } else if (nameMagazine.equals("Мои Списания")) {
-            myDB.deleteOneRowAdd(productUpDate.getId(), MyConstanta.Constanta.TABLE_NAME_WRITEOFF)
+            myDB.deleteOneRowAdd(productUpDate.id, MyConstanta.Constanta.TABLE_NAME_WRITEOFF)
         }
         replaceFragment(MagazineManagerFragment())
     }
@@ -465,16 +474,16 @@ class UpdateProductFragment : Fragment() {
     private fun setArrayAdapter() {
         //Товар
        val arrayAdapterProduct = ArrayAdapter<String>(
-            requireActivity().applicationContext,
-            R.layout.simple_spinner_dropdown_item,
+            requireContext().applicationContext,
+            android.R.layout.simple_spinner_dropdown_item,
             productNameList
         )
         productName.setAdapter(arrayAdapterProduct)
 
         //Категории
         val arrayAdapterCategory = ArrayAdapter<String>(
-            requireActivity().applicationContext,
-            R.layout.simple_spinner_dropdown_item,
+            requireContext().applicationContext,
+            android.R.layout.simple_spinner_dropdown_item,
             categoryList
         )
         category.setAdapter(arrayAdapterCategory)

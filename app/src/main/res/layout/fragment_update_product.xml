@@ -11,7 +11,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_gravity="center|top">>
+        android:layout_gravity="center|top">
+
         <TextView
             android:id="@+id/now_warehouse"
             style="@style/TextAppearance.MyApp.DisplaySmall3"
