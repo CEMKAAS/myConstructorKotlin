@@ -51,11 +51,11 @@ class UpdateProductFragment : Fragment() {
     ): View? {
         val layout = inflater.inflate(R.layout.fragment_update_product, container, false)
         myDB = MyDatabaseHelper(requireContext())
-        var idProject = MainActivity().projectNumer
+        val idProject = MainActivity().projectNumer
 
         val bundle = this.arguments
         val productUpDate: Product
-        val nameMagazine: String
+        val nameMagazine: String?
         if (bundle != null) {
             productUpDate = bundle.getParcelable("product")
             nameMagazine = bundle.getString("id").toString()
@@ -359,7 +359,7 @@ class UpdateProductFragment : Fragment() {
     }
 
     //Проверяем уходим ли в минус или нет
-    private fun addDB(name: String, count: Double, suffix: String?): Boolean {
+    private fun addDB(name: String, count: Double, suffix: String, idProject: Int): Boolean {
         val cursor = myDB.selectProductJoin(
             idProject, name, MyConstanta.Constanta.TABLE_NAME_ADD,
             suffix!!
@@ -407,8 +407,8 @@ class UpdateProductFragment : Fragment() {
     }
 
     fun cursorUpdate(
-        idProduct: IntArray, idPP: Int, count: Double, categoryProduct: String?,
-        price: Double, dateProduct: String?
+        idProduct: IntArray, idPP: Int, count: Double, categoryProduct: String,
+        price: Double, dateProduct: String, idProject: Int
     ) {
 
         //проверяем связку продукт архив

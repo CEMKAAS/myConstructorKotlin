@@ -28,7 +28,7 @@ import java.util.Calendar
 import java.util.Date
 import java.util.TimeZone
 
-class MagazineManagerFragment : Fragment() {
+class MagazineManagerFragment : Fragment(), CustomAdapterMagazine.Listener {
 
     lateinit var myDB: MyDatabaseHelper
     lateinit var empty_imageview: ImageView
@@ -41,13 +41,17 @@ class MagazineManagerFragment : Fragment() {
     private lateinit var bottomSheetDialog: BottomSheetDialog
     private lateinit var dataSheet: TextInputLayout
 
-    private lateinit var animalsSpinerSheet:AutoCompleteTextView
-    private lateinit var categorySpinerSheet:AutoCompleteTextView
+    private lateinit var animalsSpinerSheet: AutoCompleteTextView
+    private lateinit var categorySpinerSheet: AutoCompleteTextView
 
-    private lateinit var dateFirst : Date
-    private lateinit var dateEnd : Date
+    private lateinit var dateFirst: Date
+    private lateinit var dateEnd: Date
 
-    private lateinit var buttonSheet : Button
+    private lateinit var buttonSheet: Button
+
+    private var appBarManager = ""
+    var clickBool = true
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -84,8 +88,9 @@ class MagazineManagerFragment : Fragment() {
         no_data = layout.findViewById(R.id.no_data)
 
         var myRow = 0
-        var clickBool = true
-        when (appBar.title) {
+        appBarManager = appBar.title.toString()
+
+        when (appBarManager) {
             "Мои Покупки" -> {
                 storeDataInArraysClass(myDB.readAddMagazine(idProject), true)
                 addProduct()
@@ -107,15 +112,10 @@ class MagazineManagerFragment : Fragment() {
         showBottomSheetDialog()
 
         //Создание адаптера
-        var customAdapterMagazine = CustomAdapterMagazine(productNow, myRow)
+        var customAdapterMagazine = CustomAdapterMagazine(productNow, myRow, this)
         recyclerView.adapter = customAdapterMagazine
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        if (clickBool) {
-            customAdapterMagazine.onClick(
-                addChart(product)
-            )
-        }
 
         // Настройка календаря на период
         val constraintsBuilder = CalendarConstraints.Builder()
@@ -160,7 +160,7 @@ class MagazineManagerFragment : Fragment() {
         buttonSheet.setOnClickListener(View.OnClickListener {
             try {
                 filter()
-                customAdapterMagazine = CustomAdapterMagazine(productNow, myRow)
+                customAdapterMagazine = CustomAdapterMagazine(productNow, myRow,this)
                 recyclerView.adapter = customAdapterMagazine
                 recyclerView.layoutManager = LinearLayoutManager(activity)
                 bottomSheetDialog.dismiss()
@@ -179,6 +179,7 @@ class MagazineManagerFragment : Fragment() {
             setArrayAdapter()
         }
     }
+
     private fun storeDataInArraysClass(cursor: Cursor, magazineAddBool: Boolean) {
         if (cursor.count == 0) {
             empty_imageview.visibility = View.VISIBLE
@@ -279,7 +280,7 @@ class MagazineManagerFragment : Fragment() {
         ) {
             productNow.addAll(products)
         } else if (animalsSpinerSheetText == "Все" && categorySpinerSheetText == "Все" && dataSheet.editText
-               ?.text.toString() != ""
+                ?.text.toString() != ""
         ) {
             for (product in products) {
                 val dateNow: Date = format.parse(product.date)
@@ -350,7 +351,7 @@ class MagazineManagerFragment : Fragment() {
 
     fun setArrayAdapter() {
         //Товар
-       val arrayAdapterProduct = ArrayAdapter<String>(
+        val arrayAdapterProduct = ArrayAdapter<String>(
             requireContext().applicationContext,
             android.R.layout.simple_spinner_dropdown_item,
             productNameList
@@ -358,7 +359,7 @@ class MagazineManagerFragment : Fragment() {
         animalsSpinerSheet.setAdapter<ArrayAdapter<String>>(arrayAdapterProduct)
 
         //Категории
-       val arrayAdapterCategory = ArrayAdapter<String>(
+        val arrayAdapterCategory = ArrayAdapter<String>(
             requireContext().applicationContext,
             android.R.layout.simple_spinner_dropdown_item,
             categoryList
@@ -366,7 +367,7 @@ class MagazineManagerFragment : Fragment() {
         categorySpinerSheet.setAdapter<ArrayAdapter<String>>(arrayAdapterCategory)
     }
 
-    private fun addChart(product: Product, appBarManager: String) {
+    private fun addChart(product: Product) {
         val updateProductFragment = UpdateProductFragment()
         val bundle = Bundle()
         bundle.putParcelable("product", product)
@@ -381,5 +382,11 @@ class MagazineManagerFragment : Fragment() {
             .replace(R.id.conteiner, fragment, "visible_fragment")
             .addToBackStack(null)
             .commit()
+    }
+
+    override fun onClick(position: Int, product: Product) {
+        if (clickBool) {
+            addChart(product)
+        }
     }
 }

@@ -7,7 +7,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class CustomAdapterMagazine(private val products: List<Product>,private var myRow: Int, val listener: Listener) :
+class CustomAdapterMagazine(private val products: List<Product>, private var myRow: Int, val listener: Listener) :
     RecyclerView.Adapter<CustomAdapterMagazine.MyViewHolder>() {
 
     override fun onCreateViewHolder(

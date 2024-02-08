@@ -81,9 +81,7 @@ class WarehouseFragment : Fragment() {
             ) { dialogInterface, i ->
                 val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
                 val date: String =
-                    (calendar.get(Calendar.DAY_OF_MONTH) + "." + (calendar.get(Calendar.MONTH) + 1)).toString() + "." + calendar.get(
-                        Calendar.YEAR
-                    )
+                    calendar[Calendar.DAY_OF_MONTH].toString() + "." + (calendar[Calendar.MONTH] + 1) + "." + calendar[Calendar.YEAR]
                 myDB.updateToDbProject(idProject, 1, date)
                 replaceFragment(MenuProjectFragment())
             }
